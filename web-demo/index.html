@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>GymManager | Gestión del gimnasio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand"><span class="brand-mark" aria-hidden="true">G</span><div><strong>GYM MANAGER</strong><span>Gestión del gimnasio</span></div></div>
+            <div class="branch"><span class="branch-label">ESTABLECIMIENTO</span><strong id="branchName">Sucursal Central</strong></div>
+            <nav class="main-nav" aria-label="Navegación principal">
+                <button class="nav-btn active" data-view="inicio"><span class="nav-icon">⌂</span>Inicio</button>
+                <button class="nav-btn" data-view="socios"><span class="nav-icon">♙</span>Socios</button>
+                <button class="nav-btn" data-view="acceso"><span class="nav-icon">⇥</span>Control Acceso</button>
+                <button class="nav-btn" data-view="deudores"><span class="nav-icon">◷</span>Deudores</button>
+                <button class="nav-btn" data-view="pagos"><span class="nav-icon">▤</span>Caja y Cobranzas</button>
+                <button class="nav-btn" data-view="reportes"><span class="nav-icon">▥</span>Reportes</button>
+                <span class="nav-divider"></span>
+                <button class="nav-btn" data-view="configuracion"><span class="nav-icon">⚙</span>Configuración</button>
+            </nav>
+            <div class="sidebar-footer"><span>GymManager</span><span>Edición demostrativa</span></div>
+        </aside>
+        <main class="content">
+            <div class="demo-notice"><span class="demo-dot"></span><strong>MODO DEMO</strong><span>Datos de ejemplo. Los cambios se guardan solo en este navegador.</span><button type="button" data-action="reset-demo">Restablecer demo</button></div>
+            <div id="viewRoot" class="view-root" aria-live="polite"></div>
+        </main>
+    </div>
+
+    <dialog id="memberDialog" class="app-dialog">
+        <form id="memberForm" data-form="member">
+            <div class="dialog-header"><div><span class="eyebrow">PADRÓN DE SOCIOS</span><h2 id="memberDialogTitle">Nuevo socio</h2></div><button type="button" class="icon-button" data-action="close-dialog" aria-label="Cerrar">×</button></div>
+            <input type="hidden" name="id">
+            <div class="form-grid">
+                <label>Nombre<input name="nombre" required autocomplete="given-name"></label>
+                <label>Apellido<input name="apellido" required autocomplete="family-name"></label>
+                <label>DNI<input name="dni" required inputmode="numeric"></label>
+                <label>Teléfono<input name="telefono" autocomplete="tel"></label>
+                <label>Código de acceso<input name="codigoAcceso" placeholder="UID de llavero / tarjeta"></label>
+                <label>Vencimiento de cuota<input name="vencimiento" type="date"></label>
+            </div>
+            <div class="dialog-actions"><button type="button" class="button-secondary" data-action="close-dialog">Cancelar</button><button type="submit" class="button-primary">Guardar socio</button></div>
+        </form>
+    </dialog>
+
+    <dialog id="paymentDialog" class="app-dialog">
+        <form id="paymentForm" data-form="payment">
+            <div class="dialog-header"><div><span class="eyebrow">REGISTRO DE PAGO</span><h2>Registrar cobro</h2></div><button type="button" class="icon-button" data-action="close-dialog" aria-label="Cerrar">×</button></div>
+            <label>Socio<select name="socioId" id="paymentMember" required></select></label>
+            <div class="form-grid form-grid-2">
+                <label>Importe recibido<input name="monto" type="number" min="0" step="0.01" required></label>
+                <label>Valor de la cuota<input name="montoTotal" type="number" min="0" step="0.01" required></label>
+                <label>Forma de cobro<select name="forma"><option>Efectivo</option><option>Transferencia</option><option>Débito / Crédito</option><option>Bonificación / Regalo</option></select></label>
+                <label>Meses de cobertura<input name="meses" type="number" min="1" max="12" value="1" required></label>
+            </div>
+            <label>Observaciones<input name="observaciones" placeholder="Opcional"></label>
+            <div class="dialog-actions"><button type="button" class="button-secondary" data-action="close-dialog">Cancelar</button><button type="submit" class="button-primary">Confirmar cobro demo</button></div>
+        </form>
+    </dialog>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="app.js"></script>
+</body>
+</html>
