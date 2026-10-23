@@ -79,6 +79,24 @@ namespace GymManager
             MainContent.Content = new ConfiguracionView();
         }
 
+        public void NavegarAControlAcceso()
+        {
+            NavControlAcceso.IsChecked = true;
+            MainContent.Content = new CheckInView();
+        }
+
+        public void NavegarASocios()
+        {
+            NavSocios.IsChecked = true;
+            MainContent.Content = new SociosView();
+        }
+
+        public void NavegarADeudores()
+        {
+            NavDeudores.IsChecked = true;
+            MainContent.Content = new DeudoresView();
+        }
+
         private bool ValidarAccesoSeguro()
         {
             string claveConfigurada;

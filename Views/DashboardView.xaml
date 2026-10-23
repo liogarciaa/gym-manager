@@ -153,7 +153,14 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Text="Últimos Ingresos de Hoy" FontSize="15" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,15"/>
+                        <Grid Grid.Row="0" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Últimos Ingresos de Hoy" FontSize="15" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="Ver control de acceso" Background="Transparent" BorderThickness="0" Foreground="#2563EB" FontSize="12" FontWeight="SemiBold" Padding="4,2" Cursor="Hand" Click="BtnIrControlAcceso_Click"/>
+                        </Grid>
 
                         <DataGrid Grid.Row="1" x:Name="GridUltimosAccesos" 
                                   AutoGenerateColumns="False" 
@@ -169,9 +176,9 @@
                                   CanUserResizeRows="False"
                                   CanUserSortColumns="False">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Hora" Binding="{Binding FechaHora, StringFormat='HH:mm'}" Width="75" FontWeight="SemiBold" Foreground="#64748B"/>
-                                <DataGridTextColumn Header="Socio" Binding="{Binding Socio.NombreCompleto}" Width="*" FontWeight="SemiBold" Foreground="#1E293B"/>
-                                <DataGridTextColumn Header="DNI / Código" Binding="{Binding Socio.Dni}" Width="120" Foreground="#64748B"/>
+                                <DataGridTextColumn Header="Hora" Binding="{Binding Hora}" Width="95" FontFamily="Consolas" FontSize="12" Foreground="#64748B"/>
+                                <DataGridTextColumn Header="Socio" Binding="{Binding NombreCompleto}" Width="*" FontWeight="SemiBold" Foreground="#1E293B"/>
+                                <DataGridTextColumn Header="DNI / Código" Binding="{Binding Dni}" Width="120" Foreground="#64748B"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -185,7 +192,14 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Text="Socios en Tolerancia" FontSize="15" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,15"/>
+                        <Grid Grid.Row="0" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Socios en Tolerancia" FontSize="15" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="Ver padrón" Background="Transparent" BorderThickness="0" Foreground="#2563EB" FontSize="12" FontWeight="SemiBold" Padding="4,2" Cursor="Hand" Click="BtnIrSocios_Click"/>
+                        </Grid>
 
                         <DataGrid Grid.Row="1" x:Name="GridProximosVencimientos" 
                                   AutoGenerateColumns="False" 

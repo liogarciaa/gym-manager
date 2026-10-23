@@ -72,41 +72,49 @@
 
                 <!-- 1. Encabezado de Marca -->
                 <StackPanel Grid.Row="0" Margin="20,30,20,25">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
-                        <TextBlock Text="GYM MANAGER" FontSize="15" FontWeight="ExtraBold" Foreground="White" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,14">
+                        <Border Width="32" Height="32" CornerRadius="5" Background="#334155">
+                            <TextBlock Text="G" FontSize="15" FontWeight="SemiBold" Foreground="#CBD5E1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="GYM MANAGER" FontSize="13" FontWeight="ExtraBold" Foreground="White"/>
+                            <TextBlock Text="Gestión del gimnasio" FontSize="11" Foreground="#94A3B8" Margin="0,3,0,0"/>
+                        </StackPanel>
                     </StackPanel>
 
-                    <!-- Nombre del Establecimiento estilizado en tarjeta/pill -->
-                    <Border Background="#1E293B" CornerRadius="6" Padding="10,6" Margin="0,4,0,0" BorderBrush="#334155" BorderThickness="1">
-                        <TextBlock x:Name="TxtNombreGym" 
-                                   Text="Mi Gimnasio" 
-                                   FontSize="12" 
-                                   FontWeight="Bold" 
-                                   Foreground="#38BDF8" 
-                                   TextTrimming="CharacterEllipsis"/>
+                    <Border Background="#1E293B" CornerRadius="6" Padding="10,8" BorderBrush="#334155" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="ESTABLECIMIENTO" FontSize="9" FontWeight="Bold" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="TxtNombreGym"
+                                       Text="Mi Gimnasio"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="#38BDF8"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
                     </Border>
                 </StackPanel>
 
                 <!-- 2. Lista de Navegación -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <RadioButton Content="Inicio"
+                        <RadioButton x:Name="NavInicio" Content="Inicio"
                                      GroupName="SidebarNav"
                                      IsChecked="True"
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavInicio_Click"/>
 
-                        <RadioButton Content="Socios"
+                        <RadioButton x:Name="NavSocios" Content="Socios"
                                      GroupName="SidebarNav"
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavSocios_Click"/>
 
-                        <RadioButton Content="Control Acceso"
+                        <RadioButton x:Name="NavControlAcceso" Content="Control Acceso"
                                      GroupName="SidebarNav"
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavAsistencia_Click"/>
 
-                        <RadioButton Content="Deudores"
+                        <RadioButton x:Name="NavDeudores" Content="Deudores"
                                      GroupName="SidebarNav"
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavDeudores_Click"/>

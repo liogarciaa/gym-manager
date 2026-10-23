@@ -205,10 +205,10 @@
                 </DataGrid.RowStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Hora" Binding="{Binding FechaHora, StringFormat='HH:mm:ss'}" Width="100" FontWeight="Bold" Foreground="#475569"/>
-                    <DataGridTextColumn Header="N° Socio" Binding="{Binding Socio.Id}" Width="85" Foreground="#64748B"/>
-                    <DataGridTextColumn Header="Socio" Binding="{Binding Socio.NombreCompleto}" Width="2*" FontWeight="SemiBold" Foreground="#0F172A"/>
-                    <DataGridTextColumn Header="Vencimiento" Binding="{Binding Socio.FechaVencimiento, StringFormat='dd/MM/yyyy'}" Width="130" Foreground="#334155"/>
+                    <DataGridTextColumn Header="Hora" Binding="{Binding Hora}" Width="110" FontFamily="Consolas" FontSize="12" Foreground="#64748B"/>
+                    <DataGridTextColumn Header="N° Socio" Binding="{Binding SocioId}" Width="85" Foreground="#64748B"/>
+                    <DataGridTextColumn Header="Socio" Binding="{Binding SocioNombre}" Width="2*" FontWeight="SemiBold" Foreground="#0F172A"/>
+                    <DataGridTextColumn Header="Vencimiento" Binding="{Binding FechaVencimiento, StringFormat='dd/MM/yyyy'}" Width="130" Foreground="#334155"/>
                 </DataGrid.Columns>
             </DataGrid>
             </Grid>

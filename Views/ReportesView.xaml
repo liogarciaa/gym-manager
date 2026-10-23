@@ -235,6 +235,11 @@
                         <TextBlock Text="Información operativa:" FontSize="12" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,4"/>
                         <TextBlock Text="El total de morosos considera socios activos con fecha de vencimiento expirada o sin pagos registrados. Para contactarlos o regularizarlos, dirigite a la sección Deudores." 
                                    FontSize="12" Foreground="#64748B" TextWrapping="Wrap" LineHeight="18"/>
+                        <Button Content="Ver deudores"
+                            Style="{StaticResource BtnPrimary}"
+                            HorizontalAlignment="Left"
+                            Margin="0,12,0,0"
+                            Click="BtnIrDeudores_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>

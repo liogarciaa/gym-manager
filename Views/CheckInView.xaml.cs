@@ -76,6 +76,15 @@ namespace GymManager.Views
                                        .Include(a => a.Socio)
                                        .Where(a => a.FechaHora >= hoyInicio && a.FechaHora <= hoyFin)
                                        .OrderByDescending(a => a.FechaHora)
+                                       .ToList()
+                                       .Select(a => new
+                                       {
+                                           Hora = a.FechaHora.ToString("hh:mm tt", new CultureInfo("es-AR")),
+                                           SocioId = a.Socio.Id,
+                                           SocioNombre = a.Socio.NombreCompleto,
+                                           Dni = a.Socio.Dni,
+                                           FechaVencimiento = a.Socio.FechaVencimiento
+                                       })
                                        .ToList();
 
                 GridAsistencias.ItemsSource = asistenciasHoy;

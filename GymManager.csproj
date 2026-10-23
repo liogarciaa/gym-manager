@@ -21,6 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\app_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
   <Compile Remove="GymManager.Tests\**" />
   <Content Remove="GymManager.Tests\**" />
   <EmbeddedResource Remove="GymManager.Tests\**" />

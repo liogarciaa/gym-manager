@@ -60,6 +60,12 @@ namespace GymManager.Views
             GenerarReporte();
         }
 
+        private void BtnIrDeudores_Click(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.MainWindow is GymManager.MainWindow mainWindow)
+                mainWindow.NavegarADeudores();
+        }
+
         private void GenerarReporte()
         {
             if (CboMes.SelectedItem is not ComboBoxItem itemMes || CboAnio.SelectedItem is not ComboBoxItem itemAnio)

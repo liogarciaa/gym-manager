@@ -15,6 +15,18 @@ namespace GymManager.Views
             InitializeComponent();
         }
 
+        private void BtnIrControlAcceso_Click(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.MainWindow is GymManager.MainWindow mainWindow)
+                mainWindow.NavegarAControlAcceso();
+        }
+
+        private void BtnIrSocios_Click(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.MainWindow is GymManager.MainWindow mainWindow)
+                mainWindow.NavegarASocios();
+        }
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             CargarFechaEncabezado();
@@ -71,6 +83,13 @@ namespace GymManager.Views
                     .Where(a => a.FechaHora >= hoyInicio && a.FechaHora <= hoyFin)
                     .OrderByDescending(a => a.FechaHora)
                     .Take(6)
+                    .ToList()
+                    .Select(a => new
+                    {
+                        Hora = a.FechaHora.ToString("hh:mm tt", new CultureInfo("es-AR")),
+                        NombreCompleto = a.Socio.NombreCompleto,
+                        Dni = a.Socio.Dni
+                    })
                     .ToList();
 
                 // 4. Actualizar la Interfaz

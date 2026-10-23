@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using GymManager.Data;
 using GymManager.Models;
+using GymManager.Services;
 
 namespace GymManager.Views
 {
@@ -83,6 +84,48 @@ namespace GymManager.Views
         private void BtnRefrescar_Click(object sender, RoutedEventArgs e)
         {
             CargarDeudores();
+        }
+
+        private void BtnRegularizar_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { DataContext: DeudorItem item }) return;
+
+            Socio? socio;
+            using (var db = new GymDbContext())
+            {
+                socio = db.Socios.FirstOrDefault(s => s.Id == item.SocioId && !s.Eliminado);
+            }
+
+            if (socio == null)
+            {
+                CargarDeudores();
+                return;
+            }
+
+            var ventanaPago = new RegistrarPagoWindow(socio)
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (ventanaPago.ShowDialog() != true || ventanaPago.PagoRealizado == null) return;
+
+            using (var db = new GymDbContext())
+            {
+                var socioDb = db.Socios.Find(socio.Id);
+                if (socioDb == null) return;
+
+                db.Pagos.Add(ventanaPago.PagoRealizado);
+                socioDb.FechaVencimiento = ventanaPago.PagoRealizado.FechaVencimiento;
+                db.SaveChanges();
+            }
+
+            BackupService.NotificarCambioCritico();
+            CargarDeudores();
+            MessageBox.Show(
+                $"Pago registrado con éxito. Válido hasta: {ventanaPago.PagoRealizado.FechaVencimiento:dd/MM/yyyy}",
+                "Cobro exitoso",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
     }
 }
