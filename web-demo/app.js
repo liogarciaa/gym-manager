@@ -183,6 +183,19 @@ function render() {
     updateClock();
 }
 
+function navigateTo(nextView, addHistory = true) {
+    if (!renderers[nextView]) return;
+    view = nextView;
+    if (addHistory) history.pushState({ view }, '', `#${view}`);
+    render();
+}
+
+window.addEventListener('popstate', event => {
+    const hashView = location.hash.slice(1);
+    const nextView = event.state?.view || (renderers[hashView] ? hashView : 'inicio');
+    navigateTo(nextView, false);
+});
+
 function toast(message) {
     const element = document.getElementById('toast');
     element.textContent = message;
@@ -302,7 +315,7 @@ function resetDemo() {
 
 document.addEventListener('click', event => {
     const nav = event.target.closest('[data-view]');
-    if (nav) { view = nav.dataset.view; render(); return; }
+    if (nav) { navigateTo(nav.dataset.view); return; }
     const button = event.target.closest('[data-action]');
     if (!button) return;
     const id = Number(button.dataset.id);
@@ -371,5 +384,7 @@ document.addEventListener('change', event => {
 });
 
 setInterval(updateClock, 1000);
+view = renderers[location.hash.slice(1)] ? location.hash.slice(1) : 'inicio';
+history.replaceState({ view }, '', location.href);
 save();
 render();
