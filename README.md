@@ -29,3 +29,10 @@ Muchas PyMEs y centros deportivos sufren interrupciones operativas debido a caí
                  │
                  ├─► Cuota al día / En tolerancia ──► [ Envía comando HEX a Puerto COM ] ──► [ Relé USB se activa ] ──► [ Electroimán abre 3s ]
                  └─► Cuota vencida ───────────────► [ Emite alerta sonora/visual ] ──► [ Puerta permanece trabada ]
+
+```
+
+---
+
+## Página Web-Demo
+* https://liogarciaa.github.io/gym-manager/
