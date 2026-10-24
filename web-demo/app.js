@@ -190,6 +190,13 @@ function navigateTo(nextView, addHistory = true) {
     render();
 }
 
+function navigateDirectly(nextView) {
+    if (!renderers[nextView]) return;
+    view = nextView;
+    history.replaceState({ view }, '', `#${view}`);
+    render();
+}
+
 window.addEventListener('popstate', event => {
     const hashView = location.hash.slice(1);
     const nextView = event.state?.view || (renderers[hashView] ? hashView : 'inicio');
@@ -315,7 +322,11 @@ function resetDemo() {
 
 document.addEventListener('click', event => {
     const nav = event.target.closest('[data-view]');
-    if (nav) { navigateTo(nav.dataset.view); return; }
+    if (nav) {
+        if (nav.classList.contains('nav-btn')) navigateDirectly(nav.dataset.view);
+        else navigateTo(nav.dataset.view);
+        return;
+    }
     const button = event.target.closest('[data-action]');
     if (!button) return;
     const id = Number(button.dataset.id);
