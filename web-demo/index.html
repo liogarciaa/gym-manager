@@ -33,6 +33,7 @@
     <dialog id="memberDialog" class="app-dialog">
         <form id="memberForm" data-form="member">
             <div class="dialog-header"><div><span class="eyebrow">PADRÓN DE SOCIOS</span><h2 id="memberDialogTitle">Nuevo socio</h2></div><button type="button" class="icon-button" data-action="close-dialog" aria-label="Cerrar">×</button></div>
+            <p id="memberFormError" class="form-error" role="alert" hidden></p>
             <input type="hidden" name="id">
             <div class="form-grid">
                 <label>Nombre<input name="nombre" required autocomplete="given-name"></label>

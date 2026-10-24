@@ -84,7 +84,7 @@ function table(headings, rows, empty = 'No hay registros para mostrar.') {
 }
 
 function personRows(list, debtorMode = false) {
-    return list.map(member => `<tr><td><div class="person-cell"><span class="avatar">${safe(member.nombre.slice(0, 1) + member.apellido.slice(0, 1))}</span><div><strong>${safe(fullName(member))}</strong><small>ID #${member.id} · DNI ${safe(member.dni)}</small></div></div></td><td>${safe(member.telefono || 'Sin registrar')}</td><td>${dateLabel(member.alta)}</td><td>${dateLabel(member.vencimiento)}</td><td>${badge(status(member))}</td><td class="row-actions"><button class="text-button" data-action="pay" data-id="${member.id}">${debtorMode ? 'Regularizar' : 'Cobrar'}</button>${debtorMode ? '' : `<button class="text-button" data-action="edit" data-id="${member.id}">Editar</button><button class="text-button muted-action" data-action="toggle" data-id="${member.id}">${member.activo ? 'Pausar' : 'Activar'}</button>`}</td></tr>`).join('');
+    return list.map(member => `<tr><td><div class="person-cell"><span class="avatar">${safe(member.nombre.slice(0, 1) + member.apellido.slice(0, 1))}</span><div><strong>${safe(fullName(member))}</strong><small>ID #${member.id} · DNI ${safe(member.dni)}</small></div></div></td><td>${safe(member.telefono || 'Sin registrar')}</td><td>${dateLabel(member.alta)}</td><td>${dateLabel(member.vencimiento)}</td><td>${badge(status(member))}</td><td class="row-actions"><button class="text-button" data-action="pay" data-id="${member.id}">${debtorMode ? 'Regularizar' : 'Cobrar'}</button>${debtorMode ? '' : `<button class="text-button" data-action="edit" data-id="${member.id}">Editar</button><button class="text-button muted-action" data-action="toggle" data-id="${member.id}">${member.activo ? 'Pausar' : 'Activar'}</button><button class="text-button danger-action" data-action="delete" data-id="${member.id}" aria-label="Eliminar a ${safe(fullName(member))}">Eliminar</button>`}</td></tr>`).join('');
 }
 
 function paymentRows(list) {
@@ -219,6 +219,9 @@ function updateClock() {
 function openMember(id) {
     const form = document.getElementById('memberForm');
     form.reset();
+    const formError = document.getElementById('memberFormError');
+    formError.hidden = true;
+    formError.textContent = '';
     const member = id ? getMember(id) : null;
     document.getElementById('memberDialogTitle').textContent = member ? 'Editar socio' : 'Nuevo socio';
     for (const field of ['id', 'nombre', 'apellido', 'dni', 'telefono']) form.elements[field].value = member?.[field] || '';
@@ -272,7 +275,15 @@ function submitMember(form) {
     const fields = new FormData(form);
     const id = Number(fields.get('id'));
     const code = String(fields.get('codigoAcceso')).trim();
-    if (code && data.socios.some(member => !member.eliminado && member.codigo === code && member.id !== id)) return toast('Ese código de acceso ya está asignado.');
+    const formError = document.getElementById('memberFormError');
+    formError.hidden = true;
+    formError.textContent = '';
+    if (code && data.socios.some(member => !member.eliminado && member.codigo === code && member.id !== id)) {
+        formError.textContent = 'Ese código de acceso ya está asignado. Elegí otro para guardar el socio.';
+        formError.hidden = false;
+        form.elements.codigoAcceso.focus();
+        return;
+    }
     const values = { nombre: String(fields.get('nombre')).trim(), apellido: String(fields.get('apellido')).trim(), dni: String(fields.get('dni')).trim(), telefono: String(fields.get('telefono')).trim(), codigo: code, vencimiento: String(fields.get('vencimiento')) };
     if (id) Object.assign(getMember(id), values);
     else data.socios.push({ id: data.nextSocio++, alta: today(), activo: true, ...values });
@@ -280,6 +291,16 @@ function submitMember(form) {
     document.getElementById('memberDialog').close();
     render();
     toast(id ? 'Socio actualizado en esta demo.' : 'Socio agregado a esta demo.');
+}
+
+function deleteMember(id) {
+    const member = getMember(id);
+    if (!member || member.eliminado) return;
+    if (!confirm(`¿Eliminar a ${fullName(member)} del padrón? Sus pagos y asistencias históricos se conservarán.`)) return;
+    member.eliminado = true;
+    save();
+    render();
+    toast(`${fullName(member)} eliminado del padrón.`);
 }
 
 function submitPayment(form) {
@@ -337,6 +358,7 @@ document.addEventListener('click', event => {
         case 'close-dialog': button.closest('dialog').close(); break;
         case 'quick-access': access(button.dataset.code); break;
         case 'toggle': { const member = getMember(id); member.activo = !member.activo; save(); render(); toast(`${fullName(member)}: socio ${member.activo ? 'activado' : 'pausado'} en la demo.`); break; }
+        case 'delete': deleteMember(id); break;
         case 'refresh': render(); toast('Lista actualizada.'); break;
         case 'today': paymentFilter = { ...paymentFilter, desde: today(), hasta: today() }; render(); break;
         case 'month': paymentFilter = { ...paymentFilter, desde: `${today().slice(0, 8)}01`, hasta: today() }; render(); break;
