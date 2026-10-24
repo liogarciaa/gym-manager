@@ -53,6 +53,36 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="HistoryButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#CBD5E1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#94A3B8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -93,6 +123,7 @@
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
+
                 </StackPanel>
 
                 <!-- 2. Lista de Navegación -->
@@ -119,19 +150,19 @@
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavDeudores_Click"/>
 
-                        <RadioButton Content="Caja y Cobranzas"
+                        <RadioButton x:Name="NavPagos" Content="Caja y Cobranzas"
                                      GroupName="SidebarNav"
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavPagos_Click"/>
 
-                        <RadioButton Content="Reportes"
+                        <RadioButton x:Name="NavReportes" Content="Reportes"
                                      GroupName="SidebarNav"
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavReportes_Click"/>
 
                         <Border Height="1" Background="#1E293B" Margin="16,12"/>
 
-                        <RadioButton Content="Configuración"
+                        <RadioButton x:Name="NavConfiguracion" Content="Configuración"
                                      GroupName="SidebarNav"
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavConfiguracion_Click"/>
@@ -155,6 +186,28 @@
         </Border>
 
         <!-- ÁREA CENTRAL DE CONTENIDO -->
-        <ContentControl x:Name="MainContent" Grid.Column="1"/>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="35,8,35,0">
+                <Button x:Name="BtnBack" Click="BtnBack_Click"
+                        IsEnabled="False" Style="{StaticResource HistoryButtonStyle}"
+                        ToolTip="Volver a la pantalla anterior (Alt + Flecha izquierda o botón atrás del mouse)">
+                    <Path Data="M 14,3 L 6,11 L 14,19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                </Button>
+                <Button x:Name="BtnForward" Click="BtnForward_Click" Margin="4,0,0,0"
+                        IsEnabled="False" Style="{StaticResource HistoryButtonStyle}"
+                        ToolTip="Avanzar a la siguiente pantalla (Alt + Flecha derecha o botón adelante del mouse)">
+                    <Path Data="M 6,3 L 14,11 L 6,19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                </Button>
+            </StackPanel>
+
+            <ContentControl x:Name="MainContent" Grid.Row="1"/>
+        </Grid>
     </Grid>
 </Window>
