@@ -6,6 +6,10 @@
 # dotenv files
 .env
 
+# Customer licenses and private signing keys
+*.gymlicense
+**/private-key.pem
+
 # User-specific files
 *.rsuser
 *.suo

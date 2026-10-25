@@ -29,3 +29,26 @@ Muchas PyMEs y centros deportivos sufren interrupciones operativas debido a caí
                  │
                  ├─► Cuota al día / En tolerancia ──► [ Envía comando HEX a Puerto COM ] ──► [ Relé USB se activa ] ──► [ Electroimán abre 3s ]
                  └─► Cuota vencida ───────────────► [ Emite alerta sonora/visual ] ──► [ Puerta permanece trabada ]
+```
+
+## Licencias por instalación
+
+Cada licencia es permanente, queda ligada a una PC y puede habilitar NFC. La aplicación lleva solo la clave pública; la clave privada para emitir licencias se conserva cifrada en el perfil local del proveedor y nunca debe subirse al repositorio.
+
+La primera vez, desde la raíz del repositorio, inicializá el par de claves:
+
+```powershell
+dotnet run --project GymManager.LicenseIssuer/GymManager.LicenseIssuer.csproj -- init-keys
+```
+
+La herramienta pide una frase secreta y guarda la clave privada cifrada en `%LOCALAPPDATA%\GymManager\LicenseIssuer\private-key.pem`. Guardá una copia segura de ese archivo y de la frase secreta por separado. La clave pública queda en `GymManager.Licensing/TrustedIssuerPublicKey.pem`; compilá y distribuí la aplicación después de inicializarla.
+
+Para emitir una licencia, el cliente debe enviarte el identificador que aparece en la pantalla de activación. Ejecutá:
+
+```powershell
+dotnet run --project GymManager.LicenseIssuer/GymManager.LicenseIssuer.csproj -- issue
+```
+
+La herramienta solicita el gimnasio, el identificador de instalación, si incluye NFC y la frase secreta. Guarda el archivo firmado en `Documentos\GymManagerLicenses`. El cliente lo importa desde la pantalla de activación o desde Configuración.
+
+Las licencias no vencen. Si el cliente cambia de PC, hay que emitirle otra con el nuevo identificador. Para agregar NFC después de la compra, se emite otra licencia para el mismo identificador con NFC habilitado. Perder la clave privada impide emitir o renovar licencias con la clave pública ya distribuida.

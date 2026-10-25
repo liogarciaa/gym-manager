@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using GymManager.Licensing;
 using GymManager.Models;
 
 namespace GymManager.Views
@@ -19,7 +20,7 @@ namespace GymManager.Views
             _socioExistente = socioParaEditar;
 
             // Si el módulo NFC no está activo, se oculta la fila y se reduce la ventana
-            if (!ModulosHabilitados.ControlAccesoNfc)
+            if (!LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess))
             {
                 PnlCodigoAcceso.Visibility = Visibility.Collapsed;
                 Height = 440;

@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GymManager.csproj" />
+    <ProjectReference Include="..\GymManager.Licensing\GymManager.Licensing.csproj" />
   </ItemGroup>
 
 </Project>

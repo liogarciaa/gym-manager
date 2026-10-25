@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using GymManager.Data;
+using GymManager.Licensing;
 using GymManager.Models;
 
 namespace GymManager.Views
@@ -21,6 +22,59 @@ namespace GymManager.Views
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             CargarConfiguracion();
+            CargarEstadoLicencia();
+        }
+
+        private void CargarEstadoLicencia()
+        {
+            var license = LicenseRuntime.Current;
+            TxtLicenciaGimnasio.Text = license is null
+                ? "Licencia no cargada"
+                : $"Gimnasio: {license.GymName}";
+            TxtLicenciaNfc.Text = LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess)
+                ? "Control de acceso NFC: habilitado"
+                : "Control de acceso NFC: no incluido";
+            TxtIdentificadorInstalacion.Text = InstallationIdentity.GetCurrent();
+        }
+
+        private void BtnCopiarIdInstalacion_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(TxtIdentificadorInstalacion.Text);
+            MessageBox.Show("Identificador copiado.", "Licencia", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void BtnImportarLicencia_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Seleccionar licencia de GymManager",
+                Filter = "Licencia GymManager (*.gymlicense)|*.gymlicense|Todos los archivos (*.*)|*.*",
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                var result = LicenseRuntime.Install(File.ReadAllText(dialog.FileName));
+                if (!result.IsValid)
+                {
+                    MessageBox.Show(result.Message, "Licencia inválida", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                CargarEstadoLicencia();
+                MessageBox.Show("Licencia actualizada. Las próximas pantallas usarán los permisos nuevos.",
+                    "Licencia", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("No se pudo leer el archivo de licencia.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("No hay permiso para leer el archivo de licencia.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void CargarConfiguracion()

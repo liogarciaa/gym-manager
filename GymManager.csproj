@@ -25,11 +25,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="GymManager.Licensing\GymManager.Licensing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
   <Compile Remove="GymManager.Tests\**" />
+  <Compile Remove="GymManager.Licensing\**" />
+  <Compile Remove="GymManager.LicenseIssuer\**" />
   <Content Remove="GymManager.Tests\**" />
+  <Content Remove="GymManager.Licensing\**" />
+  <Content Remove="GymManager.LicenseIssuer\**" />
   <EmbeddedResource Remove="GymManager.Tests\**" />
+  <EmbeddedResource Remove="GymManager.Licensing\**" />
+  <EmbeddedResource Remove="GymManager.LicenseIssuer\**" />
   <None Remove="GymManager.Tests\**" />
+  <None Remove="GymManager.Licensing\**" />
+  <None Remove="GymManager.LicenseIssuer\**" />
   <Page Remove="GymManager.Tests\**" />
+  <Page Remove="GymManager.Licensing\**" />
+  <Page Remove="GymManager.LicenseIssuer\**" />
 </ItemGroup>
 
 </Project>

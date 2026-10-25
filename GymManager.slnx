@@ -1,4 +1,6 @@
 <Solution>
   <Project Path="GymManager.csproj" />
+  <Project Path="GymManager.Licensing/GymManager.Licensing.csproj" />
+  <Project Path="GymManager.LicenseIssuer/GymManager.LicenseIssuer.csproj" />
   <Project Path="GymManager.Tests/GymManager.Tests.csproj" />
 </Solution>

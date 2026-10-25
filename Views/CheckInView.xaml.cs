@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using GymManager.Data;
+using GymManager.Licensing;
 using GymManager.Models;
 
 namespace GymManager.Views
@@ -44,7 +45,7 @@ namespace GymManager.Views
             CargarAsistenciasHoy();
 
             // Adaptar textos si el módulo no está contratado
-            if (!ModulosHabilitados.ControlAccesoNfc)
+            if (!LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess))
             {
                 TxtSubtituloTerminal.Text = "Digite su N° de Socio o DNI para registrar su ingreso";
                 TxtEtiquetaInput.Text = "N° de Socio o DNI:";
@@ -130,7 +131,7 @@ private void ProcesarAcceso()
         }
 
         // 3. Búsqueda por Llavero NFC SOLO si el módulo está habilitado
-        if (socio == null && ModulosHabilitados.ControlAccesoNfc)
+        if (socio == null && LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess))
         {
             socio = db.Socios.FirstOrDefault(s => s.CodigoAcceso == entrada && !s.Eliminado);
         }
