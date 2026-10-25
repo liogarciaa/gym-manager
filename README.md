@@ -31,6 +31,11 @@ Muchas PyMEs y centros deportivos sufren interrupciones operativas debido a caí
                  └─► Cuota vencida ───────────────► [ Emite alerta sonora/visual ] ──► [ Puerta permanece trabada ]
 ```
 
+---
+
+## Página Web-Demo
+* https://liogarciaa.github.io/gym-manager/
+
 ## Licencias por instalación
 
 Cada licencia es permanente, queda ligada a una PC y puede habilitar NFC. La aplicación lleva solo la clave pública; la clave privada para emitir licencias se conserva cifrada en el perfil local del proveedor y nunca debe subirse al repositorio.
