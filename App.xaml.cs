@@ -2,6 +2,7 @@
 using GymManager.Data;
 using GymManager.Licensing;
 using GymManager.Views;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymManager
 {
@@ -49,6 +50,7 @@ namespace GymManager
             using (var db = new GymDbContext())
             {
                 db.Database.EnsureCreated();
+                DatabaseSchemaUpdater.EnsureCurrentSchema(db.Database.GetDbConnection());
             }
 
             MainWindow = new MainWindow();

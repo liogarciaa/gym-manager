@@ -64,4 +64,22 @@ La base de datos activa se guarda en `%LOCALAPPDATA%\GymManager\GymManager.db`, 
 
 Si esa base aún no existe, el primer inicio busca una `GymManager.db` anterior junto al ejecutable o en el directorio de trabajo y la copia con SQLite a la carpeta nueva. El original no se elimina. Los backups automáticos, la copia manual y la restauración usan la base de `%LOCALAPPDATA%`.
 
+Después de copiarla, GymManager comprueba las tablas y columnas esperadas y agrega las que falten dentro de una transacción, con valores compatibles para registros existentes. No se usa `Database.Migrate()` porque las versiones antiguas fueron creadas con `EnsureCreated()` y no tienen un historial EF confiable.
+
 Cada perfil de Windows tiene su propia carpeta `LocalAppData` y, por lo tanto, su propia base y licencia. Al actualizar con Inno Setup, no agregues una acción que borre `%LOCALAPPDATA%\GymManager`; ahí quedan los datos y la licencia del cliente.
+
+## Generar instalador con Inno Setup
+
+Instalá Inno Setup 6 en la PC de desarrollo. Desde la raíz del repositorio, publicá GymManager en Release y en modo autocontenido:
+
+```powershell
+dotnet publish .\GymManager.csproj -c Release -r win-x64 --self-contained true -p:UseAppHost=true -o .\artifacts\publish\win-x64
+```
+
+Después compilá el instalador:
+
+```powershell
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" .\GymManager.iss
+```
+
+El instalador queda en `artifacts\installer`. El script instala los archivos publicados bajo `Program Files` y crea accesos directos. No incluyas la base de desarrollo, archivos `.gymlicense`, la herramienta emisora ni la clave privada. La licencia se entrega por separado a cada cliente. Al actualizar la versión, incrementá `AppVersion` en `GymManager.iss`; no agregues acciones de Inno que borren `%LOCALAPPDATA%\GymManager` al actualizar o desinstalar.
