@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using Microsoft.EntityFrameworkCore;
 using GymManager.Data;
 using GymManager.Licensing;
 using GymManager.Models;
@@ -192,11 +193,10 @@ namespace GymManager.Views
             {
                 try
                 {
-                    string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GymManager.db");
-
-                    if (!File.Exists(dbPath))
+                    string dbPath = DatabasePaths.DatabasePath;
+                    using (var db = new GymDbContext())
                     {
-                        dbPath = Path.Combine(Directory.GetCurrentDirectory(), "GymManager.db");
+                        db.Database.ExecuteSqlRaw("PRAGMA wal_checkpoint(FULL);");
                     }
 
                     if (File.Exists(dbPath))
@@ -254,11 +254,7 @@ namespace GymManager.Views
             try
             {
                 // 3. Localizar el archivo principal de la app
-                string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GymManager.db");
-                if (!File.Exists(dbPath))
-                {
-                    dbPath = Path.Combine(Directory.GetCurrentDirectory(), "GymManager.db");
-                }
+                string dbPath = DatabasePaths.DatabasePath;
 
                 // 4. Liberar todas las conexiones SQLite en memoria
                 Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();

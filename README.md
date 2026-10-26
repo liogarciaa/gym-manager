@@ -57,3 +57,11 @@ dotnet run --project GymManager.LicenseIssuer/GymManager.LicenseIssuer.csproj --
 La herramienta solicita el gimnasio, el identificador de instalación, si incluye NFC y la frase secreta. Guarda el archivo firmado en `Documentos\GymManagerLicenses`. El cliente lo importa desde la pantalla de activación o desde Configuración.
 
 Las licencias no vencen. Si el cliente cambia de PC, hay que emitirle otra con el nuevo identificador. Para agregar NFC después de la compra, se emite otra licencia para el mismo identificador con NFC habilitado. Perder la clave privada impide emitir o renovar licencias con la clave pública ya distribuida.
+
+## Datos locales e instalador
+
+La base de datos activa se guarda en `%LOCALAPPDATA%\GymManager\GymManager.db`, no junto al ejecutable. Esto permite instalar la aplicación en `Program Files` sin necesitar permisos de escritura en esa carpeta. La licencia también vive en `%LOCALAPPDATA%\GymManager`.
+
+Si esa base aún no existe, el primer inicio busca una `GymManager.db` anterior junto al ejecutable o en el directorio de trabajo y la copia con SQLite a la carpeta nueva. El original no se elimina. Los backups automáticos, la copia manual y la restauración usan la base de `%LOCALAPPDATA%`.
+
+Cada perfil de Windows tiene su propia carpeta `LocalAppData` y, por lo tanto, su propia base y licencia. Al actualizar con Inno Setup, no agregues una acción que borre `%LOCALAPPDATA%\GymManager`; ahí quedan los datos y la licencia del cliente.

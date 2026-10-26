@@ -117,13 +117,7 @@ namespace GymManager.Services
 
         private static string ObtenerRutaBaseDatos()
         {
-            string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GymManager.db");
-            if (!File.Exists(dbPath))
-            {
-                dbPath = Path.Combine(Directory.GetCurrentDirectory(), "GymManager.db");
-            }
-
-            return dbPath;
+            return DatabasePaths.DatabasePath;
         }
 
         private static void LimpiarBackupsAntiguos(string carpeta, int diasRetencion)

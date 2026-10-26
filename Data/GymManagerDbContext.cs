@@ -14,8 +14,11 @@ namespace GymManager.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string rutaDb = Path.Combine(Directory.GetCurrentDirectory(), "GymManager.db");
-            optionsBuilder.UseSqlite($"Data Source={rutaDb}");
+            optionsBuilder.UseSqlite(new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+            {
+                DataSource = DatabasePaths.DatabasePath,
+                Mode = Microsoft.Data.Sqlite.SqliteOpenMode.ReadWriteCreate
+            }.ToString());
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

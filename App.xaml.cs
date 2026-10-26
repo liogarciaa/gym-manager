@@ -45,6 +45,7 @@ namespace GymManager
 #endif
 
             // Crea la base de datos y sus tablas si aún no existen
+            DatabasePaths.PrepareApplicationDatabase();
             using (var db = new GymDbContext())
             {
                 db.Database.EnsureCreated();
