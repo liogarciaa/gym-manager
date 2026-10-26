@@ -33,11 +33,6 @@ Muchas PyMEs y centros deportivos sufren interrupciones operativas debido a caí
 
 ---
 
-## Página Web-Demo
-* https://liogarciaa.github.io/gym-manager/
-
----
-
 ## Licenciamiento Criptográfico & Distribución
 
 El sistema implementa un modelo de **licencia permanente y ejecutable offline**, diseñado bajo arquitectura *Zero-Trust* para evitar dependencias con servidores externos de validación y garantizar operatividad continua en el mostrador del gimnasio.
@@ -59,3 +54,10 @@ Para el despliegue comercial en entornos de cliente final, el software se distri
 * **Aislamiento de Permisos en Windows:** El ejecutable y las dependencias compiladas en modo *Release* (`win-x64 Self-Contained`) se alojan en `C:\Program Files\GymManager\`.
 * **Persistencia de Datos Protegida:** La base de datos activa (`GymManager.db`) y la licencia conviven en `%LOCALAPPDATA%\GymManager\`. De esta forma, el sistema no requiere elevación de privilegios de administrador para operaciones diarias de escritura en SQLite.
 * **Ciclo de Actualización Seguro:** Las tareas de instalación y desinstalación preservan la carpeta de datos del usuario, garantizando que el historial de socios, cobros y la licencia de uso no sufran pérdida de información al actualizar la versión del software.
+
+---
+
+## Página Web-Demo
+* https://liogarciaa.github.io/gym-manager/
+
+---
