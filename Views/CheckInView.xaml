@@ -11,7 +11,8 @@
              SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
-             Loaded="UserControl_Loaded">
+             Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded">
 
     <UserControl.Resources>
         <Style x:Key="ModernCard" TargetType="Border">
@@ -89,6 +90,7 @@
             <StackPanel>
                 <TextBlock Text="Control de Acceso" FontSize="24" FontWeight="Bold" Foreground="#0F172A"/>
                 <TextBlock x:Name="TxtSubtituloTerminal" Text="Pase carnet, llavero NFC o digite el N° de Socio" FontSize="13" Foreground="#64748B" Margin="0,4,0,25"/>
+                <TextBlock x:Name="TxtEstadoControladorPuerta" Text="Puerta: controlador sin verificar" FontSize="11" Foreground="#64748B" Margin="0,-18,0,14"/>
 
                 <!-- Campo de Entrada -->
                 <TextBlock x:Name="TxtEtiquetaInput" Text="N° de Socio o Código de Acceso:" FontWeight="SemiBold" Foreground="#334155" FontSize="12" Margin="0,0,0,6"/>
