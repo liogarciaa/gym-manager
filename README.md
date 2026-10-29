@@ -7,7 +7,7 @@
 ## Problemática de Negocio
 Muchas PyMEs y centros deportivos sufren interrupciones operativas debido a caídas de conectividad a Internet o complejidad en la supervisión manual de accesos. **GymManager** resuelve esto permitiendo:
 * **Autonomía Operativa (Offline-First):** Operación 100% local sin costo de servidor ni dependencia de conexión externa.
-* **Control Físico & Auditoría:** Integración con lectores RFID y módulos de relé USB para destrabar puertas/electroimanes únicamente a socios con cuota al día.
+* **Control Físico & Auditoría:** El lector RFID introduce el UID del llavero; GymManager valida al socio y, con el hardware instalado, ordena abrir el pestillo eléctrico solo cuando el acceso está autorizado.
 * **Adaptabilidad de UI:** Renderizado vectorial adaptable a monitores antiguos o de baja resolución (1024x768).
 
 ---
@@ -16,20 +16,34 @@ Muchas PyMEs y centros deportivos sufren interrupciones operativas debido a caí
 * **Lenguaje:** C# (.NET Core / .NET 8)
 * **Interfaz Gráfica:** WPF (Windows Presentation Foundation) con XAML y patrón **MVVM**
 * **Base de Datos:** SQLite local con Entity Framework Core
-* **Integración de Hardware:** `System.IO.Ports` para comunicación por puerto serie (COM) con placas relé USB
+* **Integración de Hardware:** `System.IO.Ports` para comunicación serial USB (COM) con Arduino Nano CH340, que acciona un módulo de relé de 5 V.
 
 ---
 
 ## Integración con Hardware
-```text
-[ Socio aproxima Llavero RFID 125kHz ]
-                 │
-                 ▼ (Modo Emulador de Teclado / USB)
-[ Aplicación WPF (GymManager) ] ──► [ Consulta en SQLite local ]
-                 │
-                 ├─► Cuota al día / En tolerancia ──► [ Envía comando HEX a Puerto COM ] ──► [ Relé USB se activa ] ──► [ Electroimán abre 3s ]
-                 └─► Cuota vencida ───────────────► [ Emite alerta sonora/visual ] ──► [ Puerta permanece trabada ]
+```mermaid
+flowchart LR
+  Socio[Socio presenta llavero RFID 125 kHz] -->|El lector emula teclado y escribe UID + Enter| GymManager[GymManager WPF]
+  GymManager --> Licencia{Licencia NFC habilitada}
+  Licencia -->|No| Rechazo[Acceso rechazado; no acciona el relé]
+  Licencia -->|Sí| SQLite[Busca UID y valida socio, cuota y tolerancia en SQLite]
+  SQLite --> AntiPassback{Socio activo y anti-passback aprobado}
+  AntiPassback -->|No| Rechazo
+  AntiPassback -->|Sí| Serial[Envía OPEN por USB serial COM a 9600 baudios]
+  Serial --> Nano[Arduino Nano CH340 ejecuta firmware GymManager]
+  Nano --> Pulso[Activa salida D7 por hasta 3 segundos]
+  Pulso --> Rele[Módulo de relé de 5 V]
+  Rele --> Cerradero[Conmuta fuente independiente de 12 V al pestillo eléctrico]
+  Cerradero --> Puerta[El pestillo se libera para abrir la puerta]
+  Nano -->|Confirma OPENING| GymManager
+  GymManager --> Asistencia[Registra asistencia tras confirmar el pulso]
+  GymManager -->|Licencia customer-display| Pantalla[Pantalla de cliente opcional en monitor secundario]
+  Rechazo --> Alerta[Mensaje visual y alerta sonora; puerta sin pulso]
 ```
+
+El lector RFID de 125 kHz funciona como teclado: no se comunica directamente con GymManager mediante NFC. El Nano permanece conectado por USB y recibe las órdenes seriales `IDENTIFY?` y `OPEN`; el firmware limita cada activación del relé a 3 segundos. La cerradura utiliza una fuente propia de 12 V, conmutada por los contactos del relé según el tipo de pestillo. La salida desde adentro debe ser independiente de GymManager y de la PC.
+
+La pantalla de cliente es opcional: se muestra automáticamente en el monitor secundario cuando la licencia incluye `customer-display` y Windows tiene las pantallas en modo Extender. La vista previa manual solo está disponible en compilaciones Debug.
 
 ---
 
@@ -42,7 +56,7 @@ El sistema implementa un modelo de **licencia permanente y ejecutable offline**,
 * **Firma Asimétrica (RSA / ECDSA):** 
   * Las licencias (`.gymlicense`) se firman digitalmente con una **clave privada** conservada exclusivamente en el perfil del emisor.
   * La aplicación compilada contiene únicamente la **clave pública** del proveedor, utilizada para verificar matemáticamente la integridad del archivo y la pertenencia a la PC cliente.
-* **Módulos Granulares de Permisos:** El archivo de licencia define las capacidades habilitadas para el cliente (ej. activación del módulo de hardware NFC/RFID). Un cliente puede actualizar sus permisos importando una nueva licencia firmada sin necesidad de reinstalar la aplicación ni alterar la base de datos.
+* **Módulos Granulares de Permisos:** El archivo de licencia define las capacidades habilitadas para el cliente, como `nfc-access` y `customer-display`. Un cliente puede actualizar sus permisos importando una nueva licencia firmada sin necesidad de reinstalar la aplicación ni alterar la base de datos.
 * **Persistencia Aislada:** La licencia validada se almacena en `%LOCALAPPDATA%\GymManager\license.gymlicense`, manteniéndose intacta ante actualizaciones del sistema.
 
 ---

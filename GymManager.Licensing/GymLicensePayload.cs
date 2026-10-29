@@ -13,6 +13,7 @@ public sealed record GymLicensePayload
 public static class LicenseFeatures
 {
     public const string NfcAccess = "nfc-access";
+    public const string CustomerDisplay = "customer-display";
 }
 
 public sealed record SignedGymLicense(string Payload, string Signature);

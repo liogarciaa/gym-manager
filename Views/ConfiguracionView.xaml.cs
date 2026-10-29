@@ -35,6 +35,9 @@ namespace GymManager.Views
             TxtLicenciaNfc.Text = LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess)
                 ? "Control de acceso NFC: habilitado"
                 : "Control de acceso NFC: no incluido";
+            TxtLicenciaPantallaCliente.Text = LicenseRuntime.HasFeature(LicenseFeatures.CustomerDisplay)
+                ? "Pantalla secundaria para clientes: habilitada"
+                : "Pantalla secundaria para clientes: no incluida";
             TxtIdentificadorInstalacion.Text = InstallationIdentity.GetCurrent();
         }
 

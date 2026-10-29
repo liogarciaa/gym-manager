@@ -15,7 +15,7 @@ public sealed class LicenciasFirmadasTests
     public void LicenciaFirmadaSeValidaParaLaPcAutorizada()
     {
         using var rsa = RSA.Create(3072);
-        var payload = CrearLicencia([LicenseFeatures.NfcAccess]);
+        var payload = CrearLicencia([LicenseFeatures.NfcAccess, LicenseFeatures.CustomerDisplay]);
         string licenseJson = GymLicenseCryptography.Sign(payload, rsa);
 
         using var publicKey = RSA.Create();
@@ -24,6 +24,7 @@ public sealed class LicenciasFirmadasTests
 
         Assert.True(result.IsValid);
         Assert.Contains(LicenseFeatures.NfcAccess, result.License!.Features);
+        Assert.Contains(LicenseFeatures.CustomerDisplay, result.License.Features);
     }
 
     [Fact]

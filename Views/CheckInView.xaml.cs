@@ -21,7 +21,6 @@ namespace GymManager.Views
         private const int MinutosBloqueoReingreso = 120; // 2 horas de espera anti-passback
         private readonly DispatcherTimer _timerReset;
         private readonly DispatcherTimer _timerReloj;
-        private DoorControllerService? _doorController;
         private bool _procesandoAcceso;
 
         public CheckInView()
@@ -43,8 +42,19 @@ namespace GymManager.Views
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            _doorController ??= new DoorControllerService();
-            TxtIdentificador.IsEnabled = false;
+            DoorControllerService doorController = ((App)Application.Current).DoorController;
+            ((App)Application.Current).ShowAccessWaiting();
+#if DEBUG
+            BtnVistaPreviaPantalla.Visibility = Visibility.Visible;
+#endif
+            _ = Dispatcher.BeginInvoke(() =>
+            {
+                if (IsLoaded)
+                {
+                    TxtIdentificador.Focus();
+                    Keyboard.Focus(TxtIdentificador);
+                }
+            }, DispatcherPriority.Input);
             ActualizarReloj();
             _timerReloj.Start();
             CargarAsistenciasHoy();
@@ -56,20 +66,22 @@ namespace GymManager.Views
                 TxtEtiquetaInput.Text = "N° de Socio o DNI:";
             }
 
-            DoorControllerResult resultado = await _doorController.ConnectAsync();
+            DoorControllerResult resultado = await doorController.ConnectAsync();
+            if (!IsLoaded)
+            {
+                return;
+            }
+
             TxtEstadoControladorPuerta.Text = resultado.Success
                 ? $"Puerta: controlador conectado ({resultado.PortName})"
                 : "Puerta: controlador no detectado; se buscará al autorizar un ingreso";
-            TxtIdentificador.IsEnabled = true;
-            TxtIdentificador.Focus();
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
             _timerReloj.Stop();
             _timerReset.Stop();
-            _doorController?.Dispose();
-            _doorController = null;
+            ((App)Application.Current).ShowAccessWaiting();
         }
 
         private void TimerReloj_Tick(object? sender, EventArgs e)
@@ -125,6 +137,11 @@ namespace GymManager.Views
         private async void BtnIngresar_Click(object sender, RoutedEventArgs e)
         {
             await ProcesarAccesoAsync();
+        }
+
+        private void BtnVistaPreviaPantalla_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)Application.Current).ToggleAccessDisplayPreview();
         }
 
 private async Task ProcesarAccesoAsync()
@@ -190,7 +207,7 @@ private async Task ProcesarAccesoAsync()
             }
             else
             {
-                if (_doorController?.IsConnected == true && !credencialNfc)
+                if (((App)Application.Current).DoorController.IsConnected && !credencialNfc)
                 {
                     MostrarAccesoRechazado(
                         "PASE EL LLAVERO NFC",
@@ -259,7 +276,7 @@ private async Task ProcesarAccesoAsync()
 
         if (socioAutorizado != null && asistenciaPendiente != null)
         {
-            DoorControllerResult resultadoPuerta = await (_doorController ??= new DoorControllerService()).OpenDoorAsync();
+            DoorControllerResult resultadoPuerta = await ((App)Application.Current).DoorController.OpenDoorAsync();
             TxtEstadoControladorPuerta.Text = resultadoPuerta.Success
                 ? $"Puerta: controlador conectado ({resultadoPuerta.PortName})"
                 : "Puerta: controlador no detectado";
@@ -314,6 +331,7 @@ private async Task ProcesarAccesoAsync()
 
             TxtDetalleSocio.Text = $"[ID #{socio.Id}] {socio.NombreCompleto}\nCuota al día hasta el {socio.FechaVencimiento:dd/MM/yyyy}";
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(21, 128, 61));
+            SincronizarPantallaCliente();
 
             SystemSounds.Asterisk.Play();
         }
@@ -330,6 +348,7 @@ private async Task ProcesarAccesoAsync()
 
             TxtDetalleSocio.Text = $"[ID #{socio.Id}] {socio.NombreCompleto}\nCuota vencida el {fechaVencimiento:dd/MM/yyyy}. Avisar cobro.";
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(180, 83, 9));
+            SincronizarPantallaCliente();
 
             SystemSounds.Asterisk.Play();
         }
@@ -346,6 +365,7 @@ private async Task ProcesarAccesoAsync()
 
             TxtDetalleSocio.Text = $"[ID #{socio.Id}] {socio.NombreCompleto}\nNo se registró el ingreso ni se envió el pulso.\n{detalle}";
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(180, 83, 9));
+            SincronizarPantallaCliente();
 
             SystemSounds.Hand.Play();
         }
@@ -362,6 +382,7 @@ private async Task ProcesarAccesoAsync()
 
             TxtDetalleSocio.Text = $"[ID #{socio.Id}] {socio.NombreCompleto}\nEl relé aceptó el pulso, pero no se pudo guardar la asistencia.\n{detalle}";
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28));
+            SincronizarPantallaCliente();
 
             SystemSounds.Hand.Play();
         }
@@ -378,6 +399,7 @@ private async Task ProcesarAccesoAsync()
 
             TxtDetalleSocio.Text = detalle;
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28));
+            SincronizarPantallaCliente();
 
             SystemSounds.Hand.Play();
         }
@@ -386,6 +408,17 @@ private async Task ProcesarAccesoAsync()
         {
             PnlRelojEnEspera.Visibility = Visibility.Collapsed;
             PnlMensajeResultado.Visibility = Visibility.Visible;
+        }
+
+        private void SincronizarPantallaCliente()
+        {
+            ((App)Application.Current).ShowAccessResult(
+                TxtMensajeEstado.Text,
+                TxtDetalleSocio.Text,
+                ((SolidColorBrush)BrdResultado.Background).Color,
+                ((SolidColorBrush)BrdResultado.BorderBrush).Color,
+                ((SolidColorBrush)TxtMensajeEstado.Foreground).Color,
+                ((SolidColorBrush)TxtDetalleSocio.Foreground).Color);
         }
 
         private void TimerReset_Tick(object? sender, EventArgs e)
@@ -397,6 +430,7 @@ private async Task ProcesarAccesoAsync()
 
             PnlMensajeResultado.Visibility = Visibility.Collapsed;
             PnlRelojEnEspera.Visibility = Visibility.Visible;
+            ((App)Application.Current).ShowAccessWaiting();
 
             TxtIdentificador.Focus();
         }
