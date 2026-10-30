@@ -86,6 +86,30 @@ namespace GymManager.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GymManager.Models.LlaveroMaestro", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CodigoAcceso")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodigoAcceso")
+                        .IsUnique();
+
+                    b.ToTable("LlaverosMaestros");
+                });
+
             modelBuilder.Entity("GymManager.Models.Pago", b =>
                 {
                     b.Property<int>("Id")

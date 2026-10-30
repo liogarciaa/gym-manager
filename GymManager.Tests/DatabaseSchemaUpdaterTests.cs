@@ -45,6 +45,7 @@ public sealed class DatabaseSchemaUpdaterTests
         Assert.Equal("0", Scalar(connection, "SELECT \"MontoTotal\" FROM \"Pagos\" WHERE \"Id\" = 7"));
         Assert.Equal(1L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Configuraciones\""));
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Asistencias\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"LlaverosMaestros\""));
     }
 
     [Fact]
@@ -59,6 +60,11 @@ public sealed class DatabaseSchemaUpdaterTests
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Socios\""));
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Pagos\""));
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Asistencias\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"LlaverosMaestros\""));
+
+        Execute(connection, "INSERT INTO \"LlaverosMaestros\" (\"Nombre\", \"CodigoAcceso\") VALUES ('Ana', 'UID-1');");
+        Assert.Throws<SqliteException>(() => Execute(connection,
+            "INSERT INTO \"LlaverosMaestros\" (\"Nombre\", \"CodigoAcceso\") VALUES ('Luis', 'UID-1');"));
     }
 
     private static void Execute(SqliteConnection connection, string sql)

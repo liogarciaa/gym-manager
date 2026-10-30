@@ -144,11 +144,40 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="MasterKeyRemoveButton" TargetType="Button">
+            <Setter Property="Background" Value="#FEF2F2"/>
+            <Setter Property="Foreground" Value="#B91C1C"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FEE2E2"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FECACA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="35,25,35,25" MaxWidth="850" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -193,8 +222,59 @@
                 </StackPanel>
             </Border>
 
-            <!-- 3. IDENTIDAD DEL GIMNASIO -->
+            <!-- LLAVEROS MAESTROS -->
             <Border Grid.Row="2" Style="{StaticResource ModernCard}">
+                <StackPanel>
+                    <TextBlock Text="Llaveros Maestros" FontSize="15" FontWeight="Bold" Foreground="#0F172A"/>
+                    <TextBlock Text="Credenciales para dueños y personal. Permiten ingresar sin el límite de reingreso de socios." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,12"/>
+                    <Border Height="1" Background="#E2E8F0" Margin="0,0,0,16"/>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Nombre de la persona:" FontWeight="SemiBold" Foreground="#334155" FontSize="12" Margin="0,0,0,6"/>
+                            <TextBox x:Name="TxtNombreLlaveroMaestro" Style="{StaticResource ModernConfigInput}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="UID del llavero:" FontWeight="SemiBold" Foreground="#334155" FontSize="12" Margin="0,0,0,6"/>
+                            <TextBox x:Name="TxtCodigoLlaveroMaestro" Style="{StaticResource ModernConfigInput}" ToolTip="Apoyá el llavero en el lector para capturar su UID"/>
+                        </StackPanel>
+                    </Grid>
+                    <DockPanel Margin="0,0,0,8">
+                        <Button DockPanel.Dock="Right" Content="Añadir llavero" Style="{StaticResource BtnPrimary}" Click="BtnAgregarLlaveroMaestro_Click"/>
+                        <TextBlock Text="La cantidad de llaveros no está limitada." VerticalAlignment="Center" Foreground="#64748B" FontSize="11"/>
+                    </DockPanel>
+                    <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10" MaxHeight="190">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl x:Name="LstLlaverosMaestros">
+                                <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="7" Padding="12,9" Margin="0,0,0,8">
+                                    <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Nombre}" FontWeight="SemiBold" Foreground="#0F172A" FontSize="12"/>
+                                        <TextBlock Text="{Binding CodigoAcceso}" FontFamily="Consolas" FontSize="11" Foreground="#64748B" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="Eliminar" Style="{StaticResource MasterKeyRemoveButton}" Click="BtnEliminarLlaveroMaestro_Click" Margin="12,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- 3. IDENTIDAD DEL GIMNASIO -->
+            <Border Grid.Row="3" Style="{StaticResource ModernCard}">
                 <StackPanel>
                     <TextBlock Text="Identidad del Gimnasio" FontSize="15" FontWeight="Bold" Foreground="#0F172A"/>
                     <TextBlock Text="Información visible en la barra lateral y en los comprobantes de pago" FontSize="11" Foreground="#64748B" Margin="0,2,0,12"/>
@@ -229,7 +309,7 @@
             </Border>
 
             <!-- 4. SEGURIDAD Y CONTROL DE ACCESO -->
-            <Border Grid.Row="3" Style="{StaticResource ModernCard}">
+            <Border Grid.Row="4" Style="{StaticResource ModernCard}">
                 <StackPanel>
                     <TextBlock Text="Seguridad y Control de Acceso" FontSize="15" FontWeight="Bold" Foreground="#0F172A"/>
                     <TextBlock Text="Protege Caja y Cobranzas y Reportes. Para definir o modificar la clave, validá la actual" FontSize="11" Foreground="#64748B" Margin="0,2,0,12"/>
@@ -264,7 +344,7 @@
             </Border>
 
             <!-- 5. LICENCIA -->
-            <Border Grid.Row="4" Style="{StaticResource ModernCard}">
+            <Border Grid.Row="5" Style="{StaticResource ModernCard}">
                 <StackPanel>
                     <TextBlock Text="Licencia de GymManager" FontSize="15" FontWeight="Bold" Foreground="#0F172A"/>
                     <TextBlock Text="La licencia está ligada a esta PC. Para cambiarla, solicitá el archivo al proveedor." FontSize="11" Foreground="#64748B" Margin="0,2,0,12"/>
@@ -285,7 +365,7 @@
             </Border>
 
             <!-- 6. RESPALDO Y RESTAURACIÓN DE BASE DE DATOS -->
-            <Border Grid.Row="5" Style="{StaticResource ModernCard}">
+            <Border Grid.Row="6" Style="{StaticResource ModernCard}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

@@ -21,7 +21,9 @@ namespace GymManager.Views
         private const int MinutosBloqueoReingreso = 120; // 2 horas de espera anti-passback
         private readonly DispatcherTimer _timerReset;
         private readonly DispatcherTimer _timerReloj;
+        private readonly DispatcherTimer _timerControlador;
         private bool _procesandoAcceso;
+        private bool _verificandoControlador;
 
         public CheckInView()
         {
@@ -38,6 +40,12 @@ namespace GymManager.Views
                 Interval = TimeSpan.FromSeconds(1)
             };
             _timerReloj.Tick += TimerReloj_Tick;
+
+            _timerControlador = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(5)
+            };
+            _timerControlador.Tick += TimerControlador_Tick;
         }
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -74,14 +82,42 @@ namespace GymManager.Views
 
             TxtEstadoControladorPuerta.Text = resultado.Success
                 ? $"Puerta: controlador conectado ({resultado.PortName})"
-                : "Puerta: controlador no detectado; se buscará al autorizar un ingreso";
+                : "Puerta: controlador no detectado; búsqueda automática activa";
+            _timerControlador.Start();
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
             _timerReloj.Stop();
             _timerReset.Stop();
+            _timerControlador.Stop();
             ((App)Application.Current).ShowAccessWaiting();
+        }
+
+        private async void TimerControlador_Tick(object? sender, EventArgs e)
+        {
+            if (_verificandoControlador || !IsLoaded)
+            {
+                return;
+            }
+
+            _verificandoControlador = true;
+            try
+            {
+                DoorControllerResult resultado = await ((App)Application.Current).DoorController.ConnectAsync();
+                if (!IsLoaded)
+                {
+                    return;
+                }
+
+                TxtEstadoControladorPuerta.Text = resultado.Success
+                    ? $"Puerta: controlador conectado ({resultado.PortName})"
+                    : "Puerta: controlador no detectado; búsqueda automática activa";
+            }
+            finally
+            {
+                _verificandoControlador = false;
+            }
         }
 
         private void TimerReloj_Tick(object? sender, EventArgs e)
@@ -163,6 +199,33 @@ private async Task ProcesarAccesoAsync()
 
     try
     {
+        if (LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess))
+        {
+            LlaveroMaestro? llaveroMaestro;
+            using (var db = new GymDbContext())
+            {
+                llaveroMaestro = db.LlaverosMaestros.FirstOrDefault(llavero => llavero.CodigoAcceso == entrada);
+            }
+
+            if (llaveroMaestro != null)
+            {
+                DoorControllerResult resultadoPuerta = await ((App)Application.Current).DoorController.OpenDoorAsync();
+                TxtEstadoControladorPuerta.Text = resultadoPuerta.Success
+                    ? $"Puerta: controlador conectado ({resultadoPuerta.PortName})"
+                    : "Puerta: controlador no detectado";
+
+                if (resultadoPuerta.Success)
+                {
+                    MostrarAccesoMaestro(llaveroMaestro.Nombre);
+                }
+                else
+                {
+                    MostrarAccesoMaestroPuertaNoDisponible(llaveroMaestro.Nombre, resultadoPuerta.Message);
+                }
+                return;
+            }
+        }
+
         using (var db = new GymDbContext())
         {
             int diasTolerancia = db.Configuraciones.Select(c => c.DiasToleranciaMora).FirstOrDefault();
@@ -318,6 +381,24 @@ private async Task ProcesarAccesoAsync()
         _procesandoAcceso = false;
     }
 }
+
+        private void MostrarAccesoMaestro(string nombre)
+        {
+            ActivarModoResultado();
+            BrdResultado.Background = new SolidColorBrush(Color.FromRgb(219, 234, 254));
+            BrdResultado.BorderBrush = new SolidColorBrush(Color.FromRgb(59, 130, 246));
+            TxtMensajeEstado.Text = "ACCESO MAESTRO PERMITIDO";
+            TxtMensajeEstado.Foreground = new SolidColorBrush(Color.FromRgb(30, 64, 175));
+            TxtDetalleSocio.Text = $"{nombre}\nSin límite de reingreso.";
+            TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(29, 78, 216));
+            SincronizarPantallaCliente();
+            SystemSounds.Asterisk.Play();
+        }
+
+        private void MostrarAccesoMaestroPuertaNoDisponible(string nombre, string detalle)
+        {
+            MostrarAccesoRechazado("LLAVERO MAESTRO RECONOCIDO, PUERTA SIN RESPUESTA", $"{nombre}\nNo se pudo abrir la puerta.\n{detalle}");
+        }
 
         private void MostrarAccesoPermitido(Socio socio)
         {

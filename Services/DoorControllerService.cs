@@ -59,7 +59,18 @@ public sealed class DoorControllerService : IDisposable
 
             if (_serialPort?.IsOpen == true)
             {
-                return new DoorControllerResult(true, "Controlador conectado.", _serialPort.PortName);
+                try
+                {
+                    _serialPort.DiscardInBuffer();
+                    _serialPort.WriteLine("IDENTIFY?");
+                    if (_serialPort.ReadLine().Trim() == IdentityResponse)
+                    {
+                        return new DoorControllerResult(true, "Controlador conectado.", _serialPort.PortName);
+                    }
+                }
+                catch (Exception ex) when (ex is IOException or TimeoutException or InvalidOperationException)
+                {
+                }
             }
 
             ClosePort();

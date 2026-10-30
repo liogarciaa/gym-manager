@@ -11,6 +11,7 @@ namespace GymManager.Data
         public DbSet<Pago> Pagos => Set<Pago>();
         public DbSet<Asistencia> Asistencias => Set<Asistencia>();
         public DbSet<Configuracion> Configuraciones => Set<Configuracion>();
+        public DbSet<LlaveroMaestro> LlaverosMaestros => Set<LlaveroMaestro>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -70,6 +71,14 @@ namespace GymManager.Data
                 Direccion = ""
          }
 );
+
+            modelBuilder.Entity<LlaveroMaestro>(entity =>
+            {
+                entity.HasKey(llavero => llavero.Id);
+                entity.Property(llavero => llavero.Nombre).IsRequired().HasMaxLength(100);
+                entity.Property(llavero => llavero.CodigoAcceso).IsRequired().HasMaxLength(100);
+                entity.HasIndex(llavero => llavero.CodigoAcceso).IsUnique();
+            });
         }
     }
 }

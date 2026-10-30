@@ -116,8 +116,19 @@ public static class DatabaseSchemaUpdater
                 VALUES (1, 'Mi Gimnasio', '', '', '25000', 0, '¡Gracias por entrenar con nosotros!', '');
                 """);
 
+            EnsureTable(connection, transaction, "LlaverosMaestros", """
+                CREATE TABLE "LlaverosMaestros" (
+                    "Id" INTEGER NOT NULL CONSTRAINT "PK_LlaverosMaestros" PRIMARY KEY AUTOINCREMENT,
+                    "Nombre" TEXT NOT NULL,
+                    "CodigoAcceso" TEXT NOT NULL
+                );
+                """);
+            EnsureColumn(connection, transaction, "LlaverosMaestros", "Nombre", "TEXT NOT NULL DEFAULT ''");
+            EnsureColumn(connection, transaction, "LlaverosMaestros", "CodigoAcceso", "TEXT NOT NULL DEFAULT ''");
+
             Execute(connection, transaction, """CREATE INDEX IF NOT EXISTS "IX_Pagos_SocioId" ON "Pagos" ("SocioId");""");
             Execute(connection, transaction, """CREATE INDEX IF NOT EXISTS "IX_Asistencias_SocioId" ON "Asistencias" ("SocioId");""");
+            Execute(connection, transaction, """CREATE UNIQUE INDEX IF NOT EXISTS "IX_LlaverosMaestros_CodigoAcceso" ON "LlaverosMaestros" ("CodigoAcceso");""");
             transaction.Commit();
         }
         finally

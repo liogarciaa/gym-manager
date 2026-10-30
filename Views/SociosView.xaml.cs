@@ -71,7 +71,8 @@ namespace GymManager.Views
                 {
                     using (var db = new GymDbContext())
                     {
-                        bool yaExiste = db.Socios.Any(s => s.CodigoAcceso == nuevo.CodigoAcceso && !s.Eliminado);
+                        bool yaExiste = db.Socios.Any(s => s.CodigoAcceso == nuevo.CodigoAcceso && !s.Eliminado) ||
+                                        db.LlaverosMaestros.Any(llavero => llavero.CodigoAcceso == nuevo.CodigoAcceso);
                         if (yaExiste)
                         {
                             MessageBox.Show("Ese llavero ya está asignado a otro socio activo.", "Credencial Duplicada", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -106,7 +107,8 @@ namespace GymManager.Views
                     {
                         bool yaExiste = db.Socios.Any(s => s.CodigoAcceso == socioSeleccionado.CodigoAcceso 
                                                         && !s.Eliminado 
-                                                        && s.Id != socioSeleccionado.Id);
+                                                        && s.Id != socioSeleccionado.Id) ||
+                                        db.LlaverosMaestros.Any(llavero => llavero.CodigoAcceso == socioSeleccionado.CodigoAcceso);
                         if (yaExiste)
                         {
                             MessageBox.Show("Ese llavero ya está asignado a otro socio activo.", "Credencial Duplicada", MessageBoxButton.OK, MessageBoxImage.Warning);

@@ -38,7 +38,7 @@ function sampleData() {
             { id: 4, socioId: 8, fechaHora: dateTimeOffset(-1, 19) },
             { id: 5, socioId: 2, fechaHora: dateTimeOffset(-2, 10) }
         ],
-        config: { nombre: 'Sucursal Central', telefono: '11 4000-2211', direccion: 'Av. San Martín 1250', precio: 35000, tolerancia: 3 },
+        config: { nombre: 'Sucursal Central', telefono: '11 4000-2211', direccion: 'Av. San Martín 1250', precio: 35000, tolerancia: 3, llaverosMaestros: [] },
         nextSocio: 9, nextPago: 1043, nextAsistencia: 6
     };
 }
@@ -46,7 +46,10 @@ function sampleData() {
 function loadData() {
     try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (saved?.socios && saved?.pagos && saved?.asistencias && saved?.config) return saved;
+        if (saved?.socios && saved?.pagos && saved?.asistencias && saved?.config) {
+            if (!Array.isArray(saved.config.llaverosMaestros)) saved.config.llaverosMaestros = [];
+            return saved;
+        }
     } catch { /* Restablece los datos de muestra si el almacenamiento no es válido. */ }
     return sampleData();
 }
@@ -168,8 +171,10 @@ function renderReports() {
 }
 
 function renderSettings() {
+    const masterKeys = data.config.llaverosMaestros.map((key, index) => `<tr><td><strong>${safe(key.nombre)}</strong></td><td class="mono">${safe(key.codigo)}</td><td class="row-actions"><button type="button" class="text-button danger-action" data-action="remove-master-key" data-id="${index}">Eliminar</button></td></tr>`).join('');
     return `${header('Configuración del Sistema', 'Ajustes operativos, identidad del gimnasio, control de acceso y copias de respaldo')}<form class="settings-form" data-form="settings"><section class="panel settings-panel"><div class="section-heading"><h2>Parámetros de cuota y acceso</h2><p>Valores sugeridos para nuevas membresías y días de tolerancia permitidos.</p></div><div class="settings-grid"><label>Precio cuota mensual ($)<input name="precio" type="number" min="0" step="100" value="${safe(data.config.precio)}" required></label><label>Días de tolerancia de mora<input name="tolerancia" type="number" min="0" max="60" value="${safe(data.config.tolerancia)}" required></label></div></section>
         <section class="panel settings-panel"><div class="section-heading"><h2>Identidad del gimnasio</h2><p>Información visible en la barra lateral y en los comprobantes.</p></div><div class="settings-grid"><label class="wide-field">Nombre del establecimiento<input name="nombre" value="${safe(data.config.nombre)}" required></label><label>Teléfono / WhatsApp<input name="telefono" value="${safe(data.config.telefono)}"></label><label>Dirección / sucursal<input name="direccion" value="${safe(data.config.direccion)}"></label></div><div class="settings-actions"><button class="button-primary">Guardar cambios demo</button></div></section></form>
+        <form class="settings-form" data-form="master-key"><section class="panel settings-panel"><div class="section-heading"><h2>Llaveros maestros</h2><p>Credenciales para dueños y personal. No tienen límite de cantidad ni bloqueo de reingreso.</p></div><div class="settings-grid"><label>Nombre de la persona<input name="nombre" autocomplete="name" required></label><label>UID del llavero<input name="codigo" autocomplete="off" required></label></div><div class="settings-actions"><button class="button-primary">Añadir llavero maestro</button></div>${table(['Persona', 'UID', 'Acciones'], masterKeys, 'Todavía no hay llaveros maestros.')}</section></form>
         <section class="panel settings-panel security-panel"><div class="section-heading"><h2>Seguridad y control de acceso</h2><p>En la aplicación de escritorio, Caja y Reportes pueden protegerse con una clave de administrador.</p></div><div class="security-note"><span class="badge warning">Acceso abierto en demo</span><span>Esta muestra no solicita ni almacena contraseñas. La protección real se configura en la aplicación instalada.</span></div></section>
         <section class="panel backup-panel"><div><h2>Copia de respaldo y restauración</h2><p>En esta demo, el respaldo exporta los datos locales del navegador en un archivo JSON.</p></div><div class="backup-actions"><button class="button-secondary" data-action="choose-restore">Seleccionar copia</button><button class="button-primary" data-action="backup">Exportar copia</button><input id="restoreFile" type="file" accept="application/json,.json" hidden></div></section>`;
 }
@@ -244,6 +249,12 @@ function openPayment(id) {
 function access(identifier) {
     const value = String(identifier || '').trim();
     if (!value) return;
+    const masterKey = data.config.llaverosMaestros.find(key => key.codigo === value);
+    if (masterKey) {
+        accessResult = { state: 'granted', title: 'ACCESO MAESTRO PERMITIDO', detail: `${masterKey.nombre}. Sin límite de reingreso.` };
+        render();
+        return;
+    }
     const member = data.socios.find(item => !item.eliminado && (String(item.id) === value || item.dni === value || item.codigo === value));
     if (!member) accessResult = { state: 'denied', title: 'SOCIO NO ENCONTRADO', detail: `No existe un socio registrado con ID, DNI o código “${value}”.` };
     else if (!member.activo) accessResult = { state: 'denied', title: 'ACCESO DENEGADO', detail: `ID #${member.id} · ${fullName(member)}. La cuenta se encuentra inactiva.` };
@@ -357,6 +368,7 @@ document.addEventListener('click', event => {
         case 'pay': openPayment(button.dataset.id); break;
         case 'close-dialog': button.closest('dialog').close(); break;
         case 'quick-access': access(button.dataset.code); break;
+        case 'remove-master-key': data.config.llaverosMaestros.splice(id, 1); save(); render(); toast('Llavero maestro eliminado.'); break;
         case 'toggle': { const member = getMember(id); member.activo = !member.activo; save(); render(); toast(`${fullName(member)}: socio ${member.activo ? 'activado' : 'pausado'} en la demo.`); break; }
         case 'delete': deleteMember(id); break;
         case 'refresh': render(); toast('Lista actualizada.'); break;
@@ -381,6 +393,16 @@ document.addEventListener('submit', event => {
             const fields = new FormData(form);
             data.config = { ...data.config, nombre: String(fields.get('nombre')).trim(), telefono: String(fields.get('telefono')).trim(), direccion: String(fields.get('direccion')).trim(), precio: Math.max(0, Number(fields.get('precio'))), tolerancia: Math.max(0, Number(fields.get('tolerancia'))) };
             save(); render(); toast('Configuración guardada en este navegador.');
+            break;
+        }
+        case 'master-key': {
+            const fields = new FormData(form);
+            const nombre = String(fields.get('nombre')).trim();
+            const codigo = String(fields.get('codigo')).trim();
+            if (!nombre || !codigo) return toast('Ingresá un nombre y el UID del llavero.');
+            if (data.config.llaverosMaestros.some(key => key.codigo === codigo) || data.socios.some(member => !member.eliminado && member.codigo === codigo)) return toast('Ese UID ya está asignado a otra credencial.');
+            data.config.llaverosMaestros.push({ nombre, codigo });
+            save(); render(); toast('Llavero maestro agregado.');
             break;
         }
     }

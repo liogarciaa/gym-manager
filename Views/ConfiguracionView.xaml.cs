@@ -92,6 +92,7 @@ namespace GymManager.Views
                 TxtNombreGimnasio.Text = config.NombreGimnasio;
                 TxtTelefono.Text = config.TelefonoContacto;
                 TxtDireccion.Text = config.Direccion;
+                CargarLlaverosMaestros(db);
 
                 // Almacenamos la clave actual en memoria
                 _claveGuardada = config.ClaveAdmin ?? string.Empty;
@@ -102,6 +103,58 @@ namespace GymManager.Views
 
                 // Si nunca se configuró clave, deshabilitamos el campo de clave actual
                 PnlClaveActual.IsEnabled = !string.IsNullOrEmpty(_claveGuardada);
+            }
+        }
+
+        private void CargarLlaverosMaestros(GymDbContext db)
+        {
+            LstLlaverosMaestros.ItemsSource = db.LlaverosMaestros
+                .OrderBy(llavero => llavero.Nombre)
+                .ToList();
+        }
+
+        private void BtnAgregarLlaveroMaestro_Click(object sender, RoutedEventArgs e)
+        {
+            string nombre = TxtNombreLlaveroMaestro.Text.Trim();
+            string codigo = TxtCodigoLlaveroMaestro.Text.Trim();
+            if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(codigo))
+            {
+                MessageBox.Show("Ingrese el nombre de la persona y el UID del llavero.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            using (var db = new GymDbContext())
+            {
+                if (db.LlaverosMaestros.Any(llavero => llavero.CodigoAcceso == codigo) ||
+                    db.Socios.Any(socio => socio.CodigoAcceso == codigo && !socio.Eliminado))
+                {
+                    MessageBox.Show("Ese UID ya está asignado a otra credencial.", "Credencial duplicada", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                db.LlaverosMaestros.Add(new LlaveroMaestro { Nombre = nombre, CodigoAcceso = codigo });
+                db.SaveChanges();
+                CargarLlaverosMaestros(db);
+            }
+
+            TxtNombreLlaveroMaestro.Clear();
+            TxtCodigoLlaveroMaestro.Clear();
+            TxtNombreLlaveroMaestro.Focus();
+        }
+
+        private void BtnEliminarLlaveroMaestro_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { DataContext: LlaveroMaestro llavero }) return;
+
+            using (var db = new GymDbContext())
+            {
+                var guardado = db.LlaverosMaestros.Find(llavero.Id);
+                if (guardado != null)
+                {
+                    db.LlaverosMaestros.Remove(guardado);
+                    db.SaveChanges();
+                }
+                CargarLlaverosMaestros(db);
             }
         }
 
