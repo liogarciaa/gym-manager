@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Media;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -392,7 +391,7 @@ private async Task ProcesarAccesoAsync()
             TxtDetalleSocio.Text = $"{nombre}\nSin límite de reingreso.";
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(29, 78, 216));
             SincronizarPantallaCliente();
-            SystemSounds.Asterisk.Play();
+            AccessFeedbackSound.PlayAllowed();
         }
 
         private void MostrarAccesoMaestroPuertaNoDisponible(string nombre, string detalle)
@@ -414,7 +413,7 @@ private async Task ProcesarAccesoAsync()
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(21, 128, 61));
             SincronizarPantallaCliente();
 
-            SystemSounds.Asterisk.Play();
+            AccessFeedbackSound.PlayAllowed();
         }
 
         private void MostrarAccesoTolerancia(Socio socio, DateTime fechaVencimiento)
@@ -431,7 +430,7 @@ private async Task ProcesarAccesoAsync()
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(180, 83, 9));
             SincronizarPantallaCliente();
 
-            SystemSounds.Asterisk.Play();
+            AccessFeedbackSound.PlayAllowed();
         }
 
         private void MostrarAccesoPuertaNoDisponible(Socio socio, string detalle)
@@ -448,7 +447,7 @@ private async Task ProcesarAccesoAsync()
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(180, 83, 9));
             SincronizarPantallaCliente();
 
-            SystemSounds.Hand.Play();
+            AccessFeedbackSound.PlayDenied();
         }
 
         private void MostrarRegistroAsistenciaFallido(Socio socio, string detalle)
@@ -465,7 +464,7 @@ private async Task ProcesarAccesoAsync()
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28));
             SincronizarPantallaCliente();
 
-            SystemSounds.Hand.Play();
+            AccessFeedbackSound.PlayDenied();
         }
 
         private void MostrarAccesoRechazado(string titulo, string detalle)
@@ -482,7 +481,7 @@ private async Task ProcesarAccesoAsync()
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28));
             SincronizarPantallaCliente();
 
-            SystemSounds.Hand.Play();
+            AccessFeedbackSound.PlayDenied();
         }
 
         private void ActivarModoResultado()
