@@ -43,6 +43,48 @@ public sealed class LicenciasFirmadasTests
     }
 
     [Fact]
+    public void LicenciaNfcSinSeleccionarControladorNoLoHabilita()
+    {
+        GymLicensePayload payload = CrearLicencia([LicenseFeatures.NfcAccess]);
+
+        Assert.False(payload.HasFeature(LicenseFeatures.DoorController));
+    }
+
+    [Fact]
+    public void ControladorSeHabilitaSoloCuandoSeContrataJuntoConNfc()
+    {
+        GymLicensePayload payload = CrearLicencia([LicenseFeatures.NfcAccess]) with
+        {
+            DoorControllerEnabled = true
+        };
+
+        Assert.True(payload.HasFeature(LicenseFeatures.DoorController));
+    }
+
+    [Fact]
+    public void LicenciaNfcPuedeExcluirElControladorFisico()
+    {
+        GymLicensePayload payload = CrearLicencia([LicenseFeatures.NfcAccess]) with
+        {
+            DoorControllerEnabled = false
+        };
+
+        Assert.True(payload.HasFeature(LicenseFeatures.NfcAccess));
+        Assert.False(payload.HasFeature(LicenseFeatures.DoorController));
+    }
+
+    [Fact]
+    public void ControladorNoSeHabilitaSinNfc()
+    {
+        GymLicensePayload payload = CrearLicencia([]) with
+        {
+            DoorControllerEnabled = true
+        };
+
+        Assert.False(payload.HasFeature(LicenseFeatures.DoorController));
+    }
+
+    [Fact]
     public void ModificarElContenidoInvalidaLaFirma()
     {
         using var rsa = RSA.Create(3072);

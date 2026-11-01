@@ -223,7 +223,7 @@
             </Border>
 
             <!-- LLAVEROS MAESTROS -->
-            <Border Grid.Row="2" Style="{StaticResource ModernCard}">
+            <Border x:Name="BrdLlaverosMaestros" Grid.Row="2" Style="{StaticResource ModernCard}">
                 <StackPanel>
                     <TextBlock Text="Llaveros Maestros" FontSize="15" FontWeight="Bold" Foreground="#0F172A"/>
                     <TextBlock Text="Credenciales para dueños y personal. Permiten ingresar sin el límite de reingreso de socios." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,12"/>
@@ -351,6 +351,7 @@
                     <Border Height="1" Background="#E2E8F0" Margin="0,0,0,14"/>
                     <TextBlock x:Name="TxtLicenciaGimnasio" FontSize="13" FontWeight="SemiBold" Foreground="#334155"/>
                     <TextBlock x:Name="TxtLicenciaNfc" FontSize="12" Foreground="#64748B" Margin="0,5,0,12"/>
+                    <TextBlock x:Name="TxtLicenciaControlador" FontSize="12" Foreground="#64748B" Margin="0,-8,0,12"/>
                     <TextBlock x:Name="TxtLicenciaPantallaCliente" FontSize="12" Foreground="#64748B" Margin="0,-8,0,12"/>
                     <TextBlock Text="Identificador de esta PC" FontSize="11" FontWeight="SemiBold" Foreground="#334155"/>
                     <DockPanel Margin="0,6,0,0">

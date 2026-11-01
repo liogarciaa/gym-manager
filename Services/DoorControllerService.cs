@@ -48,6 +48,17 @@ public sealed class DoorControllerService : IDisposable
         return Task.Run(OpenDoor);
     }
 
+    public void Disconnect()
+    {
+        lock (_sync)
+        {
+            if (!_disposed)
+            {
+                ClosePort();
+            }
+        }
+    }
+
     private DoorControllerResult Connect()
     {
         lock (_sync)

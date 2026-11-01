@@ -29,16 +29,31 @@ namespace GymManager.Views
         private void CargarEstadoLicencia()
         {
             var license = LicenseRuntime.Current;
+            bool accesoNfcHabilitado = LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess);
             TxtLicenciaGimnasio.Text = license is null
                 ? "Licencia no cargada"
                 : $"Gimnasio: {license.GymName}";
-            TxtLicenciaNfc.Text = LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess)
+            TxtLicenciaNfc.Text = accesoNfcHabilitado
                 ? "Control de acceso NFC: habilitado"
                 : "Control de acceso NFC: no incluido";
+            TxtLicenciaControlador.Text = LicenseRuntime.HasFeature(LicenseFeatures.DoorController)
+                ? "Controlador físico de puerta: habilitado"
+                : "Controlador físico de puerta: no incluido";
             TxtLicenciaPantallaCliente.Text = LicenseRuntime.HasFeature(LicenseFeatures.CustomerDisplay)
                 ? "Pantalla secundaria para clientes: habilitada"
                 : "Pantalla secundaria para clientes: no incluida";
             TxtIdentificadorInstalacion.Text = InstallationIdentity.GetCurrent();
+            BrdLlaverosMaestros.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
+
+            if (accesoNfcHabilitado)
+            {
+                using var db = new GymDbContext();
+                CargarLlaverosMaestros(db);
+            }
+            else
+            {
+                LstLlaverosMaestros.ItemsSource = null;
+            }
         }
 
         private void BtnCopiarIdInstalacion_Click(object sender, RoutedEventArgs e)
@@ -68,6 +83,14 @@ namespace GymManager.Views
                 }
 
                 CargarEstadoLicencia();
+                if (Application.Current.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.ActualizarNavegacionPorLicencia();
+                }
+                if (!LicenseRuntime.HasFeature(LicenseFeatures.DoorController) && Application.Current is App app)
+                {
+                    app.DoorController.Disconnect();
+                }
                 MessageBox.Show("Licencia actualizada. Las próximas pantallas usarán los permisos nuevos.",
                     "Licencia", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -92,8 +115,6 @@ namespace GymManager.Views
                 TxtNombreGimnasio.Text = config.NombreGimnasio;
                 TxtTelefono.Text = config.TelefonoContacto;
                 TxtDireccion.Text = config.Direccion;
-                CargarLlaverosMaestros(db);
-
                 // Almacenamos la clave actual en memoria
                 _claveGuardada = config.ClaveAdmin ?? string.Empty;
 
@@ -115,6 +136,8 @@ namespace GymManager.Views
 
         private void BtnAgregarLlaveroMaestro_Click(object sender, RoutedEventArgs e)
         {
+            if (!LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess)) return;
+
             string nombre = TxtNombreLlaveroMaestro.Text.Trim();
             string codigo = TxtCodigoLlaveroMaestro.Text.Trim();
             if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(codigo))
@@ -144,6 +167,8 @@ namespace GymManager.Views
 
         private void BtnEliminarLlaveroMaestro_Click(object sender, RoutedEventArgs e)
         {
+            if (!LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess)) return;
+
             if (sender is not Button { DataContext: LlaveroMaestro llavero }) return;
 
             using (var db = new GymDbContext())

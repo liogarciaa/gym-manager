@@ -73,6 +73,13 @@ namespace GymManager.Views
                 TxtEtiquetaInput.Text = "N° de Socio o DNI:";
             }
 
+            if (!LicenseRuntime.HasFeature(LicenseFeatures.DoorController))
+            {
+                doorController.Disconnect();
+                TxtEstadoControladorPuerta.Text = "Puerta: apertura física no incluida; los ingresos se registran normalmente";
+                return;
+            }
+
             DoorControllerResult resultado = await doorController.ConnectAsync();
             if (!IsLoaded)
             {
@@ -95,7 +102,7 @@ namespace GymManager.Views
 
         private async void TimerControlador_Tick(object? sender, EventArgs e)
         {
-            if (_verificandoControlador || !IsLoaded)
+            if (_verificandoControlador || !IsLoaded || !LicenseRuntime.HasFeature(LicenseFeatures.DoorController))
             {
                 return;
             }
@@ -198,6 +205,7 @@ private async Task ProcesarAccesoAsync()
 
     try
     {
+        bool controladorPuertaHabilitado = LicenseRuntime.HasFeature(LicenseFeatures.DoorController);
         if (LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess))
         {
             LlaveroMaestro? llaveroMaestro;
@@ -208,18 +216,25 @@ private async Task ProcesarAccesoAsync()
 
             if (llaveroMaestro != null)
             {
-                DoorControllerResult resultadoPuerta = await ((App)Application.Current).DoorController.OpenDoorAsync();
-                TxtEstadoControladorPuerta.Text = resultadoPuerta.Success
-                    ? $"Puerta: controlador conectado ({resultadoPuerta.PortName})"
-                    : "Puerta: controlador no detectado";
-
-                if (resultadoPuerta.Success)
+                if (controladorPuertaHabilitado)
                 {
-                    MostrarAccesoMaestro(llaveroMaestro.Nombre);
+                    DoorControllerResult resultadoPuerta = await ((App)Application.Current).DoorController.OpenDoorAsync();
+                    TxtEstadoControladorPuerta.Text = resultadoPuerta.Success
+                        ? $"Puerta: controlador conectado ({resultadoPuerta.PortName})"
+                        : "Puerta: controlador no detectado";
+
+                    if (resultadoPuerta.Success)
+                    {
+                        MostrarAccesoMaestro(llaveroMaestro.Nombre, controladorPuertaHabilitado);
+                    }
+                    else
+                    {
+                        MostrarAccesoMaestroPuertaNoDisponible(llaveroMaestro.Nombre, resultadoPuerta.Message);
+                    }
                 }
                 else
                 {
-                    MostrarAccesoMaestroPuertaNoDisponible(llaveroMaestro.Nombre, resultadoPuerta.Message);
+                    MostrarAccesoMaestro(llaveroMaestro.Nombre, controladorPuertaHabilitado);
                 }
                 return;
             }
@@ -269,7 +284,7 @@ private async Task ProcesarAccesoAsync()
             }
             else
             {
-                if (((App)Application.Current).DoorController.IsConnected && !credencialNfc)
+                if (controladorPuertaHabilitado && ((App)Application.Current).DoorController.IsConnected && !credencialNfc)
                 {
                     MostrarAccesoRechazado(
                         "PASE EL LLAVERO NFC",
@@ -312,7 +327,7 @@ private async Task ProcesarAccesoAsync()
                             FechaHora = ahora
                         };
 
-                        if (credencialNfc)
+                        if (credencialNfc && controladorPuertaHabilitado)
                         {
                             socioAutorizado = socio;
                             socioEnTolerancia = hoy > fechaVencimiento;
@@ -381,14 +396,16 @@ private async Task ProcesarAccesoAsync()
     }
 }
 
-        private void MostrarAccesoMaestro(string nombre)
+        private void MostrarAccesoMaestro(string nombre, bool aperturaAutomatica)
         {
             ActivarModoResultado();
             BrdResultado.Background = new SolidColorBrush(Color.FromRgb(219, 234, 254));
             BrdResultado.BorderBrush = new SolidColorBrush(Color.FromRgb(59, 130, 246));
             TxtMensajeEstado.Text = "ACCESO MAESTRO PERMITIDO";
             TxtMensajeEstado.Foreground = new SolidColorBrush(Color.FromRgb(30, 64, 175));
-            TxtDetalleSocio.Text = $"{nombre}\nSin límite de reingreso.";
+            TxtDetalleSocio.Text = aperturaAutomatica
+                ? $"{nombre}\nSin límite de reingreso."
+                : $"{nombre}\nCredencial maestra reconocida; apertura manual.";
             TxtDetalleSocio.Foreground = new SolidColorBrush(Color.FromRgb(29, 78, 216));
             SincronizarPantallaCliente();
             AccessFeedbackSound.PlayAllowed();

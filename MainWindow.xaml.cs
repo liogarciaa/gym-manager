@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media.Effects;
 using GymManager.Views;
 using GymManager.Data;
+using GymManager.Licensing;
 using GymManager.Services;
 
 namespace GymManager
@@ -20,6 +21,7 @@ namespace GymManager
         {
             InitializeComponent();
             CargarNombreEstablecimiento();
+            ActualizarNavegacionPorLicencia();
 
             // Vista predeterminada al abrir la aplicación
             ShowView(new DashboardView());
@@ -27,6 +29,11 @@ namespace GymManager
 
         private void ShowView(UserControl view)
         {
+            if (view is CheckInView && !TieneAccesoNfc())
+            {
+                view = new DashboardView();
+            }
+
             MainContent.Content = view;
             SyncNavigationSelection(view);
             UpdateHistoryButtons();
@@ -34,6 +41,8 @@ namespace GymManager
 
         private void NavigateTo(UserControl view)
         {
+            if (view is CheckInView && !TieneAccesoNfc()) return;
+
             if (MainContent.Content is UserControl current)
             {
                 if (current.GetType() == view.GetType()) return;
@@ -46,6 +55,8 @@ namespace GymManager
 
         private void NavigateDirectly(UserControl view)
         {
+            if (view is CheckInView && !TieneAccesoNfc()) return;
+
             _backHistory.Clear();
             _forwardHistory.Clear();
             ShowView(view);
@@ -188,8 +199,22 @@ namespace GymManager
 
         public void NavegarAControlAcceso()
         {
+            if (!TieneAccesoNfc()) return;
             NavigateTo(new CheckInView());
         }
+
+        public void ActualizarNavegacionPorLicencia()
+        {
+            bool accesoNfcHabilitado = TieneAccesoNfc();
+            NavControlAcceso.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
+
+            if (!accesoNfcHabilitado && MainContent.Content is CheckInView)
+            {
+                NavigateDirectly(new DashboardView());
+            }
+        }
+
+        private static bool TieneAccesoNfc() => LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess);
 
         public void NavegarASocios()
         {

@@ -26,6 +26,7 @@ namespace GymManager
                 GymName = "GymManager (desarrollo)",
                 InstallationId = InstallationIdentity.GetCurrent(),
                 Features = [LicenseFeatures.NfcAccess, LicenseFeatures.CustomerDisplay],
+                DoorControllerEnabled = true,
                 IssuedUtc = DateTimeOffset.UtcNow
             });
 #else
@@ -60,7 +61,10 @@ namespace GymManager
                 DatabaseSchemaUpdater.EnsureCurrentSchema(db.Database.GetDbConnection());
             }
 
-            _ = DoorController.ConnectAsync();
+            if (LicenseRuntime.HasFeature(LicenseFeatures.DoorController))
+            {
+                _ = DoorController.ConnectAsync();
+            }
 
             MainWindow = new MainWindow();
             MainWindow.Show();

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using GymManager.Data;
+using GymManager.Licensing;
 
 namespace GymManager.Views
 {
@@ -29,8 +30,22 @@ namespace GymManager.Views
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            ConfigurarSeccionAcceso();
             CargarFechaEncabezado();
             CargarMetricas();
+        }
+
+        private void ConfigurarSeccionAcceso()
+        {
+            if (LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess)) return;
+
+            CardAsistenciasHoy.Visibility = Visibility.Collapsed;
+            GridTarjetasOperativas.ColumnDefinitions[1].Width = new GridLength(0);
+            CardUltimosAccesos.Visibility = Visibility.Collapsed;
+            GridTablasOperativas.ColumnDefinitions[0].Width = new GridLength(0);
+            Grid.SetColumn(CardProximosVencimientos, 0);
+            Grid.SetColumnSpan(CardProximosVencimientos, 2);
+            CardProximosVencimientos.Margin = new Thickness(0);
         }
 
         private void CargarFechaEncabezado()

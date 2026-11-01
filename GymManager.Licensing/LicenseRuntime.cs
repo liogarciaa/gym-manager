@@ -26,7 +26,7 @@ public static class LicenseRuntime
     public static bool HasFeature(string feature)
     {
         lock (Sync)
-            return _current?.Features.Contains(feature, StringComparer.Ordinal) == true;
+            return _current?.HasFeature(feature) == true;
     }
 
     public static LicenseValidationResult LoadCurrent()

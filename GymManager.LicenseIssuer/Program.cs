@@ -101,6 +101,12 @@ internal static class Program
 
         Console.Write("¿Habilitar NFC? (s/N): ");
         bool enableNfc = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
+        bool enableDoorController = false;
+        if (enableNfc)
+        {
+            Console.Write("¿Habilitar controlador físico de puerta? (s/N): ");
+            enableDoorController = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
+        }
         Console.Write("¿Habilitar pantalla secundaria para clientes? (s/N): ");
         bool enableCustomerDisplay = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
         string passphrase = ReadSecret("Frase secreta de la clave emisora: ");
@@ -126,6 +132,7 @@ internal static class Program
                 GymName = gymName,
                 InstallationId = installationId.ToUpperInvariant(),
                 Features = features.ToArray(),
+                DoorControllerEnabled = enableDoorController,
                 IssuedUtc = DateTimeOffset.UtcNow
             };
 
@@ -142,6 +149,7 @@ internal static class Program
             Console.WriteLine("Licencia emitida.");
             Console.WriteLine($"Gimnasio: {payload.GymName}");
             Console.WriteLine($"NFC: {(enableNfc ? "habilitado" : "no habilitado")}");
+            Console.WriteLine($"Controlador físico: {(enableDoorController ? "habilitado" : "no habilitado")}");
             Console.WriteLine($"Pantalla secundaria: {(enableCustomerDisplay ? "habilitada" : "no habilitada")}");
             Console.WriteLine($"Archivo: {outputPath}");
             return 0;

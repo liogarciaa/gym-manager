@@ -93,7 +93,7 @@
             </Grid>
 
             <!-- 2. TARJETAS OPERATIVAS -->
-            <Grid Grid.Row="1" Margin="0,0,0,30">
+            <Grid x:Name="GridTarjetasOperativas" Grid.Row="1" Margin="0,0,0,30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -111,7 +111,7 @@
                 </Border>
 
                 <!-- Tarjeta 2: Asistencias Hoy -->
-                <Border Grid.Column="1" Style="{StaticResource ModernCard}" Margin="5,0,5,0">
+                <Border x:Name="CardAsistenciasHoy" Grid.Column="1" Style="{StaticResource ModernCard}" Margin="5,0,5,0">
                     <StackPanel>
                         <TextBlock Text="Asistencias Hoy" FontSize="13" Foreground="#64748B" FontWeight="SemiBold"/>
                         <TextBlock x:Name="TxtAsistenciasHoy" Text="0" FontSize="30" FontWeight="Bold" Foreground="#7C3AED" Margin="0,10,0,0"/>
@@ -139,14 +139,14 @@
             </Grid>
 
             <!-- 3. TABLAS OPERATIVAS EN TIEMPO REAL -->
-            <Grid Grid.Row="2">
+            <Grid x:Name="GridTablasOperativas" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Columna Izquierda: Últimos Accesos de Hoy -->
-                <Border Grid.Column="0" Style="{StaticResource ModernCard}" Margin="0,0,10,0">
+                <Border x:Name="CardUltimosAccesos" Grid.Column="0" Style="{StaticResource ModernCard}" Margin="0,0,10,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -185,7 +185,7 @@
                 </Border>
 
                 <!-- Columna Derecha: Próximos Vencimientos -->
-                <Border Grid.Column="1" Style="{StaticResource ModernCard}" Margin="10,0,0,0">
+                <Border x:Name="CardProximosVencimientos" Grid.Column="1" Style="{StaticResource ModernCard}" Margin="10,0,0,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
