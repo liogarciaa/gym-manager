@@ -56,7 +56,7 @@ El sistema implementa un modelo de **licencia permanente y ejecutable offline**,
 * **Firma Asimétrica (RSA / ECDSA):** 
   * Las licencias (`.gymlicense`) se firman digitalmente con una **clave privada** conservada exclusivamente en el perfil del emisor.
   * La aplicación compilada contiene únicamente la **clave pública** del proveedor, utilizada para verificar matemáticamente la integridad del archivo y la pertenencia a la PC cliente.
-* **Módulos Granulares de Permisos:** El archivo de licencia define las capacidades habilitadas para el cliente, como `nfc-access` y `customer-display`. Un cliente puede actualizar sus permisos importando una nueva licencia firmada sin necesidad de reinstalar la aplicación ni alterar la base de datos.
+* **Módulos Granulares de Permisos:** El archivo de licencia define las capacidades habilitadas para el cliente, como `nfc-access`, `control-access` y `customer-display`. Un cliente puede actualizar sus permisos importando una nueva licencia firmada sin necesidad de reinstalar la aplicación ni alterar la base de datos.
 * **Persistencia Aislada:** La licencia validada se almacena en `%LOCALAPPDATA%\GymManager\license.gymlicense`, manteniéndose intacta ante actualizaciones del sistema.
 
 ---
