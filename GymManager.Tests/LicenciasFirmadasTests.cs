@@ -85,6 +85,19 @@ public sealed class LicenciasFirmadasTests
     }
 
     [Fact]
+    public void PantallaSecundariaRequiereNfc()
+    {
+        GymLicensePayload licenciaSinNfc = CrearLicencia([LicenseFeatures.CustomerDisplay]);
+        GymLicensePayload licenciaConNfc = CrearLicencia([
+            LicenseFeatures.NfcAccess,
+            LicenseFeatures.CustomerDisplay
+        ]);
+
+        Assert.False(licenciaSinNfc.HasFeature(LicenseFeatures.CustomerDisplay));
+        Assert.True(licenciaConNfc.HasFeature(LicenseFeatures.CustomerDisplay));
+    }
+
+    [Fact]
     public void ModificarElContenidoInvalidaLaFirma()
     {
         using var rsa = RSA.Create(3072);

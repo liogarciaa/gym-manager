@@ -107,8 +107,12 @@ internal static class Program
             Console.Write("¿Habilitar controlador físico de puerta? (s/N): ");
             enableDoorController = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
         }
-        Console.Write("¿Habilitar pantalla secundaria para clientes? (s/N): ");
-        bool enableCustomerDisplay = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
+        bool enableCustomerDisplay = false;
+        if (enableNfc)
+        {
+            Console.Write("¿Habilitar pantalla secundaria para clientes? (s/N): ");
+            enableCustomerDisplay = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
+        }
         string passphrase = ReadSecret("Frase secreta de la clave emisora: ");
 
         try

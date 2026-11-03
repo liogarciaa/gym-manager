@@ -186,6 +186,12 @@ namespace GymManager.Views
             ((App)Application.Current).ToggleAccessDisplayPreview();
         }
 
+        public async Task ProcesarDesdeLectorAsync(string entrada)
+        {
+            TxtIdentificador.Text = entrada;
+            await ProcesarAccesoAsync();
+        }
+
 private async Task ProcesarAccesoAsync()
 {
     if (_procesandoAcceso)

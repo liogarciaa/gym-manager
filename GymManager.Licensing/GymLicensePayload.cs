@@ -12,10 +12,14 @@ public sealed record GymLicensePayload
 
     public bool HasFeature(string feature)
     {
+        bool hasNfc = Features.Contains(LicenseFeatures.NfcAccess, StringComparer.Ordinal);
         if (feature == LicenseFeatures.DoorController)
         {
-            bool hasNfc = Features.Contains(LicenseFeatures.NfcAccess, StringComparer.Ordinal);
             return hasNfc && DoorControllerEnabled;
+        }
+        if (feature == LicenseFeatures.CustomerDisplay)
+        {
+            return hasNfc && Features.Contains(LicenseFeatures.CustomerDisplay, StringComparer.Ordinal);
         }
 
         return Features.Contains(feature, StringComparer.Ordinal);

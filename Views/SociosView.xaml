@@ -39,7 +39,7 @@
             <Setter Property="BorderBrush" Value="#94A3B8"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Padding" Value="0"/>
             <Style.Triggers>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
                     <Setter Property="BorderBrush" Value="#2563EB"/>
@@ -122,10 +122,13 @@
                              BorderThickness="0"
                              Background="Transparent"
                              VerticalContentAlignment="Center" 
+                             GotKeyboardFocus="TxtBuscar_GotKeyboardFocus"
+                             LostKeyboardFocus="TxtBuscar_LostKeyboardFocus"
                              TextChanged="TxtBuscar_TextChanged"/>
 
                     <!-- Texto gris indicativo (Placeholder) -->
-                    <TextBlock Text="Buscar socio por Nombre, Apellido o ID..." 
+                    <TextBlock x:Name="TxtBuscarPlaceholder" Text="Buscar socio por Nombre, Apellido, DNI o ID..."
+                               Margin="12,0"
                                FontSize="13" 
                                Foreground="#94A3B8" 
                                IsHitTestVisible="False" 

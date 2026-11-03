@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Effects;
+using System.Windows.Threading;
 using GymManager.Views;
 using GymManager.Data;
 using GymManager.Licensing;
@@ -16,6 +17,7 @@ namespace GymManager
     {
         private readonly Stack<UserControl> _backHistory = new();
         private readonly Stack<UserControl> _forwardHistory = new();
+        private bool _modoBuscarSocio;
 
         public MainWindow()
         {
@@ -37,6 +39,125 @@ namespace GymManager
             MainContent.Content = view;
             SyncNavigationSelection(view);
             UpdateHistoryButtons();
+            _modoBuscarSocio = TieneAccesoNfc() && view is SociosView;
+            ActualizarModoLector();
+
+            if (view is not CheckInView && TieneAccesoNfc())
+            {
+                Dispatcher.BeginInvoke(new Action(EnfocarLectorGlobal), DispatcherPriority.Input);
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (TieneAccesoNfc()) EnfocarLectorGlobal();
+        }
+
+        private void Window_Activated(object? sender, EventArgs e)
+        {
+            if (TieneAccesoNfc() && MainContent.Content is not CheckInView)
+            {
+                Dispatcher.BeginInvoke(new Action(EnfocarLectorGlobal), DispatcherPriority.ContextIdle);
+            }
+        }
+
+        private void EnfocarLectorGlobal()
+        {
+            if (!IsLoaded || !PanelLectorGlobal.IsVisible || MainContent.Content is CheckInView) return;
+            TxtLectorGlobal.Focus();
+            Keyboard.Focus(TxtLectorGlobal);
+        }
+
+        public void RecuperarFocoLectorGlobal()
+        {
+            if (!TieneAccesoNfc()) return;
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (!IsActive || Application.Current.Windows.OfType<Window>().Any(window =>
+                        window != this && window.IsVisible && window.IsActive))
+                {
+                    return;
+                }
+
+                EnfocarLectorGlobal();
+            }), DispatcherPriority.Background);
+        }
+
+        private void ActualizarModoLector()
+        {
+            ModoEntrada.IsChecked = !_modoBuscarSocio;
+            ModoBuscarSocio.IsChecked = _modoBuscarSocio;
+            TxtLectorPlaceholder.Text = _modoBuscarSocio
+                ? "Escaneá el llavero para buscar la ficha sin registrar entrada..."
+                : "Escaneá un llavero para registrar una entrada...";
+        }
+
+        private void ModoEntrada_Click(object sender, RoutedEventArgs e)
+        {
+            PrepararModoEntradaLector();
+            EnfocarLectorGlobal();
+        }
+
+        public void PrepararModoEntradaLector()
+        {
+            if (!TieneAccesoNfc()) return;
+
+            _modoBuscarSocio = false;
+            ActualizarModoLector();
+        }
+
+        private void ModoBuscarSocio_Click(object sender, RoutedEventArgs e)
+        {
+            _modoBuscarSocio = true;
+            ActualizarModoLector();
+            if (MainContent.Content is not SociosView)
+            {
+                NavigateDirectly(new SociosView());
+            }
+            EnfocarLectorGlobal();
+        }
+
+        private async void TxtLectorGlobal_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            e.Handled = true;
+            string codigo = TxtLectorGlobal.Text.Trim();
+            TxtLectorGlobal.Clear();
+            if (string.IsNullOrWhiteSpace(codigo) || !TieneAccesoNfc()) return;
+
+            if (_modoBuscarSocio)
+            {
+                if (MainContent.Content is not SociosView sociosView)
+                {
+                    sociosView = new SociosView();
+                    NavigateDirectly(sociosView);
+                    await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ContextIdle);
+                }
+
+                if (sociosView.BuscarDesdeLector(codigo))
+                {
+                    _modoBuscarSocio = false;
+                    ActualizarModoLector();
+                }
+                EnfocarLectorGlobal();
+                return;
+            }
+
+            CheckInView checkInView;
+            if (MainContent.Content is CheckInView vistaActual)
+            {
+                checkInView = vistaActual;
+            }
+            else
+            {
+                checkInView = new CheckInView();
+                NavigateDirectly(checkInView);
+                await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ContextIdle);
+            }
+
+            await checkInView.ProcesarDesdeLectorAsync(codigo);
         }
 
         private void NavigateTo(UserControl view)
@@ -207,6 +328,14 @@ namespace GymManager
         {
             bool accesoNfcHabilitado = TieneAccesoNfc();
             NavControlAcceso.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
+            PanelLectorGlobal.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
+            PanelModoLector.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
+
+            if (!accesoNfcHabilitado)
+            {
+                _modoBuscarSocio = false;
+                ActualizarModoLector();
+            }
 
             if (!accesoNfcHabilitado && MainContent.Content is CheckInView)
             {

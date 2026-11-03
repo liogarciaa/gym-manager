@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using GymManager.Data;
+using GymManager.Licensing;
 using GymManager.Models;
 using System.Windows.Media;
 using GymManager.Services;
@@ -17,7 +18,42 @@ namespace GymManager.Views
         public SociosView()
         {
             InitializeComponent();
+            if (LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess))
+            {
+                TxtBuscarPlaceholder.Text = "Buscar por Nombre, Apellido, DNI, ID o llavero...";
+            }
             CargarSociosDesdeBaseDeDatos();
+        }
+
+        public bool BuscarDesdeLector(string valor)
+        {
+            if (!LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess)) return false;
+
+            TxtBuscar.Text = valor.Trim();
+            if (SociosDataGrid.Items.Count == 1)
+            {
+                SociosDataGrid.SelectedItem = SociosDataGrid.Items[0];
+                SociosDataGrid.ScrollIntoView(SociosDataGrid.SelectedItem);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void TxtBuscar_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.PrepararModoEntradaLector();
+            }
+        }
+
+        private void TxtBuscar_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.RecuperarFocoLectorGlobal();
+            }
         }
 
         private void CargarSociosDesdeBaseDeDatos()
@@ -40,18 +76,29 @@ namespace GymManager.Views
                 return;
             }
 
-            string filtroLower = filtro.ToLower();
+            string filtroLower = filtro.ToLowerInvariant();
             bool esNumero = int.TryParse(filtro, out int idBuscado);
+
+            if (LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess))
+            {
+                Socio? coincidenciaExacta = _socios.FirstOrDefault(s =>
+                    string.Equals(s.CodigoAcceso, filtro, StringComparison.OrdinalIgnoreCase));
+                if (coincidenciaExacta != null)
+                {
+                    SociosDataGrid.ItemsSource = new[] { coincidenciaExacta };
+                    return;
+                }
+            }
 
             var resultados = _socios.Where(s =>
             {
-                if (esNumero)
-                {
-                    return s.Id == idBuscado;
-                }
-
-                return s.Nombre.ToLower().Contains(filtroLower) ||
-                       s.Apellido.ToLower().Contains(filtroLower);
+                bool coincideLlavero = LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess) &&
+                    (s.CodigoAcceso?.Contains(filtro, StringComparison.OrdinalIgnoreCase) == true);
+                return (esNumero && s.Id == idBuscado) ||
+                       s.Dni.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                       s.Nombre.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                       s.Apellido.Contains(filtro, StringComparison.OrdinalIgnoreCase) ||
+                       coincideLlavero;
             }).ToList();
 
             SociosDataGrid.ItemsSource = resultados;

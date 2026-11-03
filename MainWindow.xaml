@@ -12,7 +12,9 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display"
-        TextOptions.TextRenderingMode="ClearType">
+        TextOptions.TextRenderingMode="ClearType"
+        Loaded="Window_Loaded"
+        Activated="Window_Activated">
 
     <Window.Resources>
         <!-- Estilo moderno para ítems de navegación lateral con selección activa -->
@@ -77,6 +79,36 @@
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Foreground" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ReaderModeButtonStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="11,0"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="modeBorder" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="modeBorder" Property="Background" Value="#E2E8F0"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="modeBorder" Property="Background" Value="#183B38"/>
+                                <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -192,20 +224,63 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="35,8,35,0">
-                <Button x:Name="BtnBack" Click="BtnBack_Click"
-                        IsEnabled="False" Style="{StaticResource HistoryButtonStyle}"
-                        ToolTip="Volver a la pantalla anterior (Alt + Flecha izquierda o botón atrás del mouse)">
-                    <Path Data="M 14,3 L 6,11 L 14,19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                </Button>
-                <Button x:Name="BtnForward" Click="BtnForward_Click" Margin="4,0,0,0"
-                        IsEnabled="False" Style="{StaticResource HistoryButtonStyle}"
-                        ToolTip="Avanzar a la siguiente pantalla (Alt + Flecha derecha o botón adelante del mouse)">
-                    <Path Data="M 6,3 L 14,11 L 6,19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                </Button>
-            </StackPanel>
+            <Grid Grid.Row="0" Margin="25,6,35,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="BtnBack" Click="BtnBack_Click"
+                            IsEnabled="False" Style="{StaticResource HistoryButtonStyle}"
+                            ToolTip="Volver a la pantalla anterior (Alt + Flecha izquierda o botón atrás del mouse)">
+                        <Path Data="M 14,3 L 6,11 L 14,19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Button>
+                    <Button x:Name="BtnForward" Click="BtnForward_Click" Margin="4,0,0,0"
+                            IsEnabled="False" Style="{StaticResource HistoryButtonStyle}"
+                            ToolTip="Avanzar a la siguiente pantalla (Alt + Flecha derecha o botón adelante del mouse)">
+                        <Path Data="M 6,3 L 14,11 L 6,19" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Button>
+                </StackPanel>
+
+                <Border x:Name="PanelLectorGlobal" Grid.Column="1" Visibility="Collapsed"
+                        Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8"
+                        Height="36" Margin="14,0,10,0" VerticalAlignment="Center">
+                    <Grid>
+                        <TextBox x:Name="TxtLectorGlobal" FontSize="12" Foreground="#0F172A"
+                                 Background="Transparent" BorderThickness="0" Padding="11,0"
+                                 VerticalContentAlignment="Center" KeyDown="TxtLectorGlobal_KeyDown"
+                                 ToolTip="Escaneá un llavero o escribí un ID, DNI o UID y presioná Enter"/>
+                        <TextBlock x:Name="TxtLectorPlaceholder" Text="Escaneá un llavero para registrar una entrada..."
+                                   Margin="12,0" VerticalAlignment="Center" Foreground="#94A3B8"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=TxtLectorGlobal}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <StackPanel x:Name="PanelModoLector" Grid.Column="2" Orientation="Horizontal"
+                            VerticalAlignment="Center" Visibility="Collapsed">
+                    <RadioButton x:Name="ModoEntrada" Content="Entrada" GroupName="ReaderMode"
+                                 IsChecked="True" Style="{StaticResource ReaderModeButtonStyle}"
+                                 Click="ModoEntrada_Click" ToolTip="El próximo escaneo se procesa como una entrada"/>
+                    <RadioButton x:Name="ModoBuscarSocio" Content="Buscar socio" GroupName="ReaderMode"
+                                 Style="{StaticResource ReaderModeButtonStyle}"
+                                 Click="ModoBuscarSocio_Click" ToolTip="El próximo escaneo busca la ficha sin registrar asistencia"/>
+                </StackPanel>
+            </Grid>
 
             <ContentControl x:Name="MainContent" Grid.Row="1"/>
         </Grid>
