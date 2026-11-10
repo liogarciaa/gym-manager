@@ -3,6 +3,7 @@ const root = document.getElementById('viewRoot');
 const isoDate = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const today = () => isoDate(new Date());
 const fromISO = value => value ? new Date(`${value}T12:00:00`) : null;
+const localDate = value => isoDate(new Date(value));
 const dateOffset = days => { const date = new Date(); date.setHours(12, 0, 0, 0); date.setDate(date.getDate() + days); return isoDate(date); };
 const dateTimeOffset = (days, hour) => { const date = fromISO(dateOffset(days)); date.setHours(hour, 0, 0, 0); return date.toISOString(); };
 const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -105,7 +106,7 @@ function attendanceRows(list) {
 }
 
 function renderHome() {
-    const todayEntries = data.asistencias.filter(item => item.fechaHora.slice(0, 10) === today());
+    const todayEntries = data.asistencias.filter(item => localDate(item.fechaHora) === today());
     const newMembers = data.socios.filter(member => !member.eliminado && member.alta.slice(0, 7) === today().slice(0, 7)).length;
     const upcoming = activeMembers().filter(member => member.vencimiento >= today()).sort((a, b) => a.vencimiento.localeCompare(b.vencimiento)).slice(0, 5);
     return `${header('Panel de Control', 'Resumen de actividad diaria, concurrencia y control de membresías', `<span class="date-chip">${new Intl.DateTimeFormat('es-AR', { dateStyle: 'full' }).format(new Date())}</span>`)}
@@ -121,7 +122,7 @@ function renderMembers() {
 
 function renderAccess() {
     const result = accessResult || { state: 'idle', title: 'Esperando ingreso', detail: 'Pase un carnet, acerque el llavero o ingrese el ID / DNI del socio.' };
-    const entries = data.asistencias.filter(item => item.fechaHora.slice(0, 10) === today());
+    const entries = data.asistencias.filter(item => localDate(item.fechaHora) === today());
     const sampleMembers = activeMembers().filter(member => member.codigo).slice(0, 4);
     return `${header('Control de Acceso', 'Registro de ingresos por ID, DNI o código de acceso. El lector físico se simula en esta demo.')}
         <section class="access-layout"><article class="panel access-terminal"><div class="terminal-heading"><span class="terminal-icon">⇥</span><div><h2>Terminal de ingreso</h2><p>Acceso sujeto al estado de la membresía</p></div></div><form data-form="access"><label for="accessCode">N° de socio, DNI o código de acceso</label><div class="input-action"><input id="accessCode" name="identifier" placeholder="Ej. 0001234567" autocomplete="off" required><button class="button-primary">Registrar entrada</button></div><small>Probá con una credencial de muestra:</small><div class="sample-credentials">${sampleMembers.map(member => `<button type="button" class="credential" data-action="quick-access" data-code="${safe(member.codigo)}"><strong>${safe(fullName(member))}</strong><span>${safe(member.codigo)}</span></button>`).join('')}</div></form><div class="access-result ${result.state}"><span class="result-light"></span><div><strong>${safe(result.title)}</strong><p>${safe(result.detail)}</p></div></div></article>
@@ -142,7 +143,7 @@ function debtorRows(list) {
 
 function filteredPayments() {
     return data.pagos.filter(payment => {
-        const date = payment.fechaPago.slice(0, 10);
+        const date = localDate(payment.fechaPago);
         return (!paymentFilter.desde || date >= paymentFilter.desde) && (!paymentFilter.hasta || date <= paymentFilter.hasta) && (paymentFilter.forma === 'Todos' || payment.forma === paymentFilter.forma);
     }).sort((a, b) => new Date(b.fechaPago) - new Date(a.fechaPago));
 }
