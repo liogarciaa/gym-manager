@@ -12,6 +12,9 @@ namespace GymManager.Data
         public DbSet<Asistencia> Asistencias => Set<Asistencia>();
         public DbSet<Configuracion> Configuraciones => Set<Configuracion>();
         public DbSet<LlaveroMaestro> LlaverosMaestros => Set<LlaveroMaestro>();
+        public DbSet<Rutina> Rutinas => Set<Rutina>();
+        public DbSet<EjercicioRutina> EjerciciosRutina => Set<EjercicioRutina>();
+        public DbSet<SocioRutina> SociosRutinas => Set<SocioRutina>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -78,6 +81,39 @@ namespace GymManager.Data
                 entity.Property(llavero => llavero.Nombre).IsRequired().HasMaxLength(100);
                 entity.Property(llavero => llavero.CodigoAcceso).IsRequired().HasMaxLength(100);
                 entity.HasIndex(llavero => llavero.CodigoAcceso).IsUnique();
+            });
+
+            modelBuilder.Entity<Rutina>(entity =>
+            {
+                entity.HasKey(rutina => rutina.Id);
+                entity.Property(rutina => rutina.Nombre).IsRequired().HasMaxLength(100);
+                entity.Property(rutina => rutina.Descripcion).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<EjercicioRutina>(entity =>
+            {
+                entity.HasKey(ejercicio => ejercicio.Id);
+                entity.Property(ejercicio => ejercicio.Nombre).IsRequired().HasMaxLength(100);
+                entity.Property(ejercicio => ejercicio.Repeticiones).IsRequired().HasMaxLength(30);
+                entity.Property(ejercicio => ejercicio.Notas).HasMaxLength(300);
+                entity.HasOne(ejercicio => ejercicio.Rutina)
+                    .WithMany(rutina => rutina.Ejercicios)
+                    .HasForeignKey(ejercicio => ejercicio.RutinaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<SocioRutina>(entity =>
+            {
+                entity.HasKey(asignacion => asignacion.Id);
+                entity.HasOne(asignacion => asignacion.Socio)
+                    .WithMany(socio => socio.RutinasAsignadas)
+                    .HasForeignKey(asignacion => asignacion.SocioId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(asignacion => asignacion.Rutina)
+                    .WithMany(rutina => rutina.Asignaciones)
+                    .HasForeignKey(asignacion => asignacion.RutinaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(asignacion => new { asignacion.SocioId, asignacion.RutinaId }).IsUnique();
             });
         }
     }

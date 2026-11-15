@@ -25,7 +25,7 @@ namespace GymManager
                 LicenseId = "development",
                 GymName = "GymManager (desarrollo)",
                 InstallationId = InstallationIdentity.GetCurrent(),
-                Features = [LicenseFeatures.NfcAccess, LicenseFeatures.CustomerDisplay],
+                Features = [LicenseFeatures.NfcAccess, LicenseFeatures.CustomerDisplay, LicenseFeatures.WorkoutRoutines],
                 DoorControllerEnabled = true,
                 IssuedUtc = DateTimeOffset.UtcNow
             });

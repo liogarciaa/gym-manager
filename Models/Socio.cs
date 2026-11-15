@@ -28,6 +28,7 @@ namespace GymManager.Models
         public List<Pago> Pagos { get; set; } = new();
 
         public List<Asistencia> Asistencias { get; set; } = new();
+        public List<SocioRutina> RutinasAsignadas { get; set; } = new();
 
         // Propiedades calculadas útiles para la UI
         public string NombreCompleto => $"{Nombre} {Apellido}";

@@ -113,6 +113,8 @@ internal static class Program
             Console.Write("¿Habilitar pantalla secundaria para clientes? (s/N): ");
             enableCustomerDisplay = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
         }
+        Console.Write("¿Habilitar módulo de rutinas? (s/N): ");
+        bool enableWorkoutRoutines = string.Equals(Console.ReadLine()?.Trim(), "s", StringComparison.OrdinalIgnoreCase);
         string passphrase = ReadSecret("Frase secreta de la clave emisora: ");
 
         try
@@ -128,6 +130,10 @@ internal static class Program
             if (enableCustomerDisplay)
             {
                 features.Add(LicenseFeatures.CustomerDisplay);
+            }
+            if (enableWorkoutRoutines)
+            {
+                features.Add(LicenseFeatures.WorkoutRoutines);
             }
 
             var payload = new GymLicensePayload
@@ -155,6 +161,7 @@ internal static class Program
             Console.WriteLine($"NFC: {(enableNfc ? "habilitado" : "no habilitado")}");
             Console.WriteLine($"Controlador físico: {(enableDoorController ? "habilitado" : "no habilitado")}");
             Console.WriteLine($"Pantalla secundaria: {(enableCustomerDisplay ? "habilitada" : "no habilitada")}");
+            Console.WriteLine($"Rutinas: {(enableWorkoutRoutines ? "habilitado" : "no habilitado")}");
             Console.WriteLine($"Archivo: {outputPath}");
             return 0;
         }

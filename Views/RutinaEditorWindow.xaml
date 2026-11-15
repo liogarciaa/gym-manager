@@ -1,0 +1,176 @@
+<Window x:Class="GymManager.Views.RutinaEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Editar rutina"
+        Width="860"
+        Height="700"
+        MinWidth="720"
+        MinHeight="580"
+        WindowStartupLocation="CenterOwner"
+        Background="#F1F5F9"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+            <TextBlock Text="Datos de la rutina" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+            <TextBlock Text="Definí el nombre, las indicaciones y los ejercicios." FontSize="12" Margin="0,4,0,0" Foreground="#64748B"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Margin="0,0,12,0">
+                <TextBlock Text="Nombre *" FontSize="12" Margin="0,0,0,5" FontWeight="SemiBold" Foreground="#334155"/>
+                <TextBox x:Name="TxtNombre" Style="{StaticResource RutinasCampo}" MaxLength="100"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Descripción / indicaciones" FontSize="12" Margin="0,0,0,5" FontWeight="SemiBold" Foreground="#334155"/>
+                <TextBox x:Name="TxtDescripcion" Style="{StaticResource RutinasCampo}" MaxLength="500"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Buscar ejercicio" FontSize="12" Margin="0,0,0,5" FontWeight="SemiBold" Foreground="#334155"/>
+                <TextBox x:Name="TxtBuscarEjercicio" Style="{StaticResource RutinasCampo}"
+                         TextChanged="TxtBuscarEjercicio_TextChanged"
+                         PreviewKeyDown="TxtBuscarEjercicio_PreviewKeyDown"
+                         ToolTip="Buscá un ejercicio o escribí uno personalizado"/>
+                <Popup x:Name="PopupSugerencias"
+                       PlacementTarget="{Binding ElementName=TxtBuscarEjercicio}"
+                       Placement="Bottom"
+                       Width="500"
+                       StaysOpen="False"
+                       AllowsTransparency="True">
+                    <Border MaxHeight="220"
+                            HorizontalAlignment="Stretch"
+                            Background="White"
+                            BorderBrush="#CBD5E1"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="4">
+                        <ListBox x:Name="LstSugerencias"
+                                 MaxHeight="210"
+                                 BorderThickness="0"
+                                 MouseLeftButtonUp="LstSugerencias_MouseLeftButtonUp"
+                                 PreviewKeyDown="LstSugerencias_PreviewKeyDown">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="10,7"/>
+                                    <Setter Property="Foreground" Value="#0F172A"/>
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="itemBorder" Background="Transparent" CornerRadius="4"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="itemBorder" Property="Background" Value="#BFDBFE"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="itemBorder" Property="Background" Value="#BFDBFE"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </Border>
+                </Popup>
+            </StackPanel>
+            <Button Grid.Column="1" Content="Agregar ejercicio"
+                    Style="{StaticResource RutinasBotonSecundario}"
+                    VerticalAlignment="Bottom" Margin="10,0,0,0"
+                    Click="BtnAgregarEjercicio_Click"/>
+        </Grid>
+
+        <Border Grid.Row="3" Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
+                CornerRadius="10" Padding="12" Margin="0,0,0,18">
+            <DataGrid x:Name="GridEjercicios"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="True"
+                      CanUserSortColumns="False"
+                      CanUserResizeRows="False"
+                      HeadersVisibility="Column"
+                      RowHeight="42"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#D2D2D2"
+                      BorderThickness="0"
+                      AlternatingRowBackground="#F8FAFC"
+                      ColumnHeaderStyle="{StaticResource RutinasEncabezadoTabla}"
+                      CellStyle="{StaticResource RutinasCeldaEditor}"
+                      RowStyle="{StaticResource RutinasFilaEditor}">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Ejercicio *" Width="2*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RutinasCampoCelda}" MaxLength="100"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Series *" Width="70">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Series, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RutinasCampoCelda}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Repeticiones *" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Repeticiones, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RutinasCampoCelda}" MaxLength="30"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Descanso (seg.)" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding DescansoSegundos, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RutinasCampoCelda}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Notas" Width="2*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Notas, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RutinasCampoCelda}" MaxLength="300"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancelar" Style="{StaticResource RutinasBotonSecundario}" Margin="0,0,10,0" IsCancel="True"/>
+            <Button Content="Guardar rutina" Style="{StaticResource RutinasBotonPrimario}" Click="BtnGuardar_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

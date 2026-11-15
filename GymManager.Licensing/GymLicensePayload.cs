@@ -31,6 +31,7 @@ public static class LicenseFeatures
     public const string NfcAccess = "nfc-access";
     public const string CustomerDisplay = "customer-display";
     public const string DoorController = "door-controller";
+    public const string WorkoutRoutines = "workout-routines";
 }
 
 public sealed record SignedGymLicense(string Payload, string Signature);

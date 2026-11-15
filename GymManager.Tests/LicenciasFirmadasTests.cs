@@ -98,6 +98,16 @@ public sealed class LicenciasFirmadasTests
     }
 
     [Fact]
+    public void ModuloDeRutinasSeHabilitaSoloConLaCapacidadFirmada()
+    {
+        GymLicensePayload sinRutinas = CrearLicencia([]);
+        GymLicensePayload conRutinas = CrearLicencia([LicenseFeatures.WorkoutRoutines]);
+
+        Assert.False(sinRutinas.HasFeature(LicenseFeatures.WorkoutRoutines));
+        Assert.True(conRutinas.HasFeature(LicenseFeatures.WorkoutRoutines));
+    }
+
+    [Fact]
     public void ModificarElContenidoInvalidaLaFirma()
     {
         using var rsa = RSA.Create(3072);

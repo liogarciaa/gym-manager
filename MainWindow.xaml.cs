@@ -31,6 +31,11 @@ namespace GymManager
 
         private void ShowView(UserControl view)
         {
+            if (view is WorkoutRoutinesView && !TieneAccesoRutinas())
+            {
+                view = new DashboardView();
+            }
+
             if (view is CheckInView && !TieneAccesoNfc())
             {
                 view = new DashboardView();
@@ -190,6 +195,7 @@ namespace GymManager
             NavControlAcceso.IsChecked = view is CheckInView;
             NavDeudores.IsChecked = view is DeudoresView;
             NavPagos.IsChecked = view is PagosView;
+            NavRutinas.IsChecked = view is WorkoutRoutinesView;
             NavReportes.IsChecked = view is ReportesView;
             NavConfiguracion.IsChecked = view is ConfiguracionView;
         }
@@ -297,6 +303,17 @@ namespace GymManager
             NavigateDirectly(new PagosView());
         }
 
+        private void BtnNavRutinas_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TieneAccesoRutinas())
+            {
+                SyncNavigationSelection((UserControl)MainContent.Content);
+                return;
+            }
+
+            NavigateDirectly(new WorkoutRoutinesView());
+        }
+
         private void BtnNavDeudores_Click(object sender, RoutedEventArgs e)
         {
             NavigateDirectly(new DeudoresView());
@@ -327,7 +344,9 @@ namespace GymManager
         public void ActualizarNavegacionPorLicencia()
         {
             bool accesoNfcHabilitado = TieneAccesoNfc();
+            bool accesoRutinasHabilitado = TieneAccesoRutinas();
             NavControlAcceso.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
+            NavRutinas.Visibility = accesoRutinasHabilitado ? Visibility.Visible : Visibility.Collapsed;
             PanelLectorGlobal.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
             PanelModoLector.Visibility = accesoNfcHabilitado ? Visibility.Visible : Visibility.Collapsed;
 
@@ -341,9 +360,15 @@ namespace GymManager
             {
                 NavigateDirectly(new DashboardView());
             }
+
+            if (!accesoRutinasHabilitado && MainContent.Content is WorkoutRoutinesView)
+            {
+                NavigateDirectly(new DashboardView());
+            }
         }
 
         private static bool TieneAccesoNfc() => LicenseRuntime.HasFeature(LicenseFeatures.NfcAccess);
+        private static bool TieneAccesoRutinas() => LicenseRuntime.HasFeature(LicenseFeatures.WorkoutRoutines);
 
         public void NavegarASocios()
         {

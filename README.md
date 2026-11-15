@@ -8,6 +8,7 @@
 Muchas PyMEs y centros deportivos sufren interrupciones operativas debido a caídas de conectividad a Internet o complejidad en la supervisión manual de accesos. **GymManager** resuelve esto permitiendo:
 * **Autonomía Operativa (Offline-First):** Operación 100% local sin costo de servidor ni dependencia de conexión externa.
 * **Control Físico & Auditoría:** El lector RFID introduce el UID del llavero; GymManager valida al socio y, con el hardware instalado, ordena abrir el pestillo eléctrico solo cuando el acceso está autorizado.
+* **Rutinas de entrenamiento:** Biblioteca de rutinas con ejercicios, series, repeticiones y descanso; asignación a socios, exportación a PDF y QR con texto legible sin conexión.
 * **Adaptabilidad de UI:** Renderizado vectorial adaptable a monitores antiguos o de baja resolución (1024x768).
 
 ---
@@ -56,7 +57,7 @@ El sistema implementa un modelo de **licencia permanente y ejecutable offline**,
 * **Firma Asimétrica (RSA / ECDSA):** 
   * Las licencias (`.gymlicense`) se firman digitalmente con una **clave privada** conservada exclusivamente en el perfil del emisor.
   * La aplicación compilada contiene únicamente la **clave pública** del proveedor, utilizada para verificar matemáticamente la integridad del archivo y la pertenencia a la PC cliente.
-* **Módulos Granulares de Permisos:** El archivo de licencia define las capacidades habilitadas para el cliente, como `nfc-access`, `control-access` y `customer-display`. Un cliente puede actualizar sus permisos importando una nueva licencia firmada sin necesidad de reinstalar la aplicación ni alterar la base de datos.
+* **Módulos Granulares de Permisos:** El archivo de licencia define las capacidades habilitadas para el cliente, como `nfc-access`, `door-controller`, `customer-display` y `workout-routines`. Un cliente puede actualizar sus permisos importando una nueva licencia firmada sin necesidad de reinstalar la aplicación ni alterar la base de datos.
 * **Persistencia Aislada:** La licencia validada se almacena en `%LOCALAPPDATA%\GymManager\license.gymlicense`, manteniéndose intacta ante actualizaciones del sistema.
 
 ---
@@ -68,6 +69,14 @@ Para el despliegue comercial en entornos de cliente final, el software se distri
 * **Aislamiento de Permisos en Windows:** El ejecutable y las dependencias compiladas en modo *Release* (`win-x64 Self-Contained`) se alojan en `C:\Program Files\GymManager\`.
 * **Persistencia de Datos Protegida:** La base de datos activa (`GymManager.db`) y la licencia conviven en `%LOCALAPPDATA%\GymManager\`. De esta forma, el sistema no requiere elevación de privilegios de administrador para operaciones diarias de escritura en SQLite.
 * **Ciclo de Actualización Seguro:** Las tareas de instalación y desinstalación preservan la carpeta de datos del usuario, garantizando que el historial de socios, cobros y la licencia de uso no sufran pérdida de información al actualizar la versión del software.
+
+---
+
+## Rutinas y uso sin conexión
+
+El módulo de rutinas se habilita mediante la capacidad `workout-routines` de la licencia. Las rutinas y sus asignaciones se guardan en la base de datos local. Para cada socio se puede generar un PDF ordenado o mostrar un QR que contiene el texto de la rutina (no un enlace), por lo que leerlo no requiere Internet. El teléfono puede presentar ese contenido como texto según el lector de QR integrado; el PDF se genera en GymManager para guardarlo, compartirlo localmente o imprimirlo.
+
+El editor de rutinas ofrece sugerencias offline de ejercicios comunes y recupera nombres de ejercicios ya utilizados en rutinas guardadas. También permite agregar un ejercicio personalizado.
 
 ---
 

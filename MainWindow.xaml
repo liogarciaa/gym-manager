@@ -187,6 +187,12 @@
                                      Style="{StaticResource SidebarButtonStyle}" 
                                      Click="BtnNavPagos_Click"/>
 
+                        <RadioButton x:Name="NavRutinas" Content="Rutinas"
+                                     GroupName="SidebarNav"
+                                     Style="{StaticResource SidebarButtonStyle}"
+                                     Visibility="Collapsed"
+                                     Click="BtnNavRutinas_Click"/>
+
                         <RadioButton x:Name="NavReportes" Content="Reportes"
                                      GroupName="SidebarNav"
                                      Style="{StaticResource SidebarButtonStyle}" 

@@ -126,9 +126,46 @@ public static class DatabaseSchemaUpdater
             EnsureColumn(connection, transaction, "LlaverosMaestros", "Nombre", "TEXT NOT NULL DEFAULT ''");
             EnsureColumn(connection, transaction, "LlaverosMaestros", "CodigoAcceso", "TEXT NOT NULL DEFAULT ''");
 
+            EnsureTable(connection, transaction, "Rutinas", """
+                CREATE TABLE "Rutinas" (
+                    "Id" INTEGER NOT NULL CONSTRAINT "PK_Rutinas" PRIMARY KEY AUTOINCREMENT,
+                    "Nombre" TEXT NOT NULL,
+                    "Descripcion" TEXT NOT NULL DEFAULT '',
+                    "FechaCreacion" TEXT NOT NULL
+                );
+                """);
+
+            EnsureTable(connection, transaction, "EjerciciosRutina", """
+                CREATE TABLE "EjerciciosRutina" (
+                    "Id" INTEGER NOT NULL CONSTRAINT "PK_EjerciciosRutina" PRIMARY KEY AUTOINCREMENT,
+                    "RutinaId" INTEGER NOT NULL,
+                    "Orden" INTEGER NOT NULL,
+                    "Nombre" TEXT NOT NULL,
+                    "Series" INTEGER NOT NULL,
+                    "Repeticiones" TEXT NOT NULL,
+                    "DescansoSegundos" INTEGER NULL,
+                    "Notas" TEXT NOT NULL DEFAULT '',
+                    CONSTRAINT "FK_EjerciciosRutina_Rutinas_RutinaId" FOREIGN KEY ("RutinaId") REFERENCES "Rutinas" ("Id") ON DELETE CASCADE
+                );
+                """);
+
+            EnsureTable(connection, transaction, "SociosRutinas", """
+                CREATE TABLE "SociosRutinas" (
+                    "Id" INTEGER NOT NULL CONSTRAINT "PK_SociosRutinas" PRIMARY KEY AUTOINCREMENT,
+                    "SocioId" INTEGER NOT NULL,
+                    "RutinaId" INTEGER NOT NULL,
+                    "FechaAsignacion" TEXT NOT NULL,
+                    CONSTRAINT "FK_SociosRutinas_Socios_SocioId" FOREIGN KEY ("SocioId") REFERENCES "Socios" ("Id") ON DELETE CASCADE,
+                    CONSTRAINT "FK_SociosRutinas_Rutinas_RutinaId" FOREIGN KEY ("RutinaId") REFERENCES "Rutinas" ("Id") ON DELETE CASCADE
+                );
+                """);
+
             Execute(connection, transaction, """CREATE INDEX IF NOT EXISTS "IX_Pagos_SocioId" ON "Pagos" ("SocioId");""");
             Execute(connection, transaction, """CREATE INDEX IF NOT EXISTS "IX_Asistencias_SocioId" ON "Asistencias" ("SocioId");""");
             Execute(connection, transaction, """CREATE UNIQUE INDEX IF NOT EXISTS "IX_LlaverosMaestros_CodigoAcceso" ON "LlaverosMaestros" ("CodigoAcceso");""");
+            Execute(connection, transaction, """CREATE INDEX IF NOT EXISTS "IX_EjerciciosRutina_RutinaId" ON "EjerciciosRutina" ("RutinaId");""");
+            Execute(connection, transaction, """CREATE UNIQUE INDEX IF NOT EXISTS "IX_SociosRutinas_SocioId_RutinaId" ON "SociosRutinas" ("SocioId", "RutinaId");""");
+            Execute(connection, transaction, """CREATE INDEX IF NOT EXISTS "IX_SociosRutinas_RutinaId" ON "SociosRutinas" ("RutinaId");""");
             transaction.Commit();
         }
         finally

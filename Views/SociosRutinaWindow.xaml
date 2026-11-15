@@ -1,0 +1,84 @@
+<Window x:Class="GymManager.Views.SociosRutinaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Asignar rutina a socios"
+        Width="600"
+        Height="640"
+        MinWidth="480"
+        MinHeight="450"
+        WindowStartupLocation="CenterOwner"
+        Background="#F1F5F9"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+            <TextBlock Text="Asignar rutina" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+            <TextBlock Text="Seleccioná uno o varios socios activos que todavía no tengan esta rutina asignada." FontSize="12" Margin="0,4,0,0" Foreground="#64748B" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBox x:Name="TxtBuscar" Style="{StaticResource RutinasCampo}"
+                     TextChanged="TxtBuscar_TextChanged"
+                     ToolTip="Buscar por nombre, apellido o DNI"/>
+            <TextBlock x:Name="TxtEstado" Grid.Row="1" FontSize="11" Foreground="#64748B"
+                       Margin="2,6,0,0"/>
+        </Grid>
+
+        <Border Grid.Row="2" Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
+                CornerRadius="10" Padding="12" Margin="0,0,0,18">
+            <DataGrid x:Name="GridSocios"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      CanUserSortColumns="False"
+                      CanUserResizeRows="False"
+                      HeadersVisibility="Column"
+                      SelectionMode="Extended"
+                      RowHeight="42"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#D2D2D2"
+                      BorderThickness="0"
+                      AlternatingRowBackground="#F8FAFC"
+                      Focusable="False"
+                      ColumnHeaderStyle="{StaticResource RutinasEncabezadoTabla}"
+                      CellStyle="{StaticResource RutinasCeldaTabla}"
+                      RowStyle="{StaticResource RutinasFilaSeleccionable}">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Asignar" Width="72">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Seleccionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEnabled="{Binding PuedeAsignar}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Cursor="Hand"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Socio" Binding="{Binding NombreCompleto}" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Header="DNI" Binding="{Binding Dni}" IsReadOnly="True" Width="130"/>
+                    <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" IsReadOnly="True" Width="110"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancelar" Style="{StaticResource RutinasBotonSecundario}" Margin="0,0,10,0" IsCancel="True"/>
+            <Button Content="Asignar seleccionados" Style="{StaticResource RutinasBotonPrimario}" Click="BtnAsignar_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

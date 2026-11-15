@@ -1,0 +1,42 @@
+<Window x:Class="GymManager.Views.RutinaQrWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="QR de rutina"
+        Width="560"
+        Height="700"
+        MinWidth="460"
+        MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        Background="#F1F5F9"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <TextBlock Text="Rutina para escanear" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+            <TextBlock Text="Este QR contiene el texto de la rutina y se puede leer sin Internet." FontSize="12" Margin="0,4,0,0" Foreground="#64748B" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="10"
+                Padding="14" HorizontalAlignment="Center" Margin="0,0,0,14">
+            <Image x:Name="ImgQr" Width="280" Height="280" Stretch="Uniform"/>
+        </Border>
+
+        <TextBox x:Name="TxtContenido" Grid.Row="2" IsReadOnly="True" TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto" Padding="12" Background="White"
+                 BorderBrush="#CBD5E1" FontFamily="Consolas" FontSize="13"
+                 FocusVisualStyle="{x:Null}"/>
+
+        <Button Grid.Row="3" Content="Cerrar" Width="100" Height="36" HorizontalAlignment="Right"
+                Style="{StaticResource RutinasBotonSecundario}" Margin="0,14,0,0" IsCancel="True"/>
+    </Grid>
+</Window>

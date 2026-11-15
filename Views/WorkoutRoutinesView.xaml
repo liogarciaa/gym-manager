@@ -1,0 +1,125 @@
+<UserControl x:Class="GymManager.Views.WorkoutRoutinesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#e1e1e2"
+             FontFamily="Segoe UI"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="35">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,25">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Rutinas de entrenamiento" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
+                    <TextBlock Text="Creá planes, asignálos a socios y compartilos como PDF o QR offline." FontSize="13" Foreground="#64748B" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Nueva rutina" Style="{StaticResource RutinasBotonPrimario}"
+                            Margin="0,0,8,0" Click="BtnNuevaRutina_Click"/>
+                    <Button Content="Asignar a socios" Style="{StaticResource RutinasBotonSecundario}"
+                            Click="BtnAsignar_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
+                    CornerRadius="10" Padding="24" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="220"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Biblioteca de rutinas" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+                            <TextBlock Text="Seleccioná una rutina para ver sus asignaciones." FontSize="11" Foreground="#64748B" Margin="0,3,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Editar" Style="{StaticResource RutinasBotonSecundario}"
+                                    Height="34" Padding="14,0" Margin="0,0,7,0" Click="BtnEditarRutina_Click"/>
+                            <Button Content="Eliminar" Style="{StaticResource RutinasBotonPeligro}"
+                                    Height="34" Padding="14,0" Click="BtnEliminarRutina_Click"/>
+                        </StackPanel>
+                    </Grid>
+                    <DataGrid x:Name="GridRutinas" Grid.Row="1" AutoGenerateColumns="False"
+                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                              SelectionMode="Single" SelectionUnit="FullRow"
+                              HeadersVisibility="Column" RowHeight="42"
+                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#D2D2D2"
+                              BorderThickness="0" Background="White" AlternatingRowBackground="#F8FAFC"
+                              CanUserResizeRows="False" CanUserSortColumns="False" Focusable="False"
+                              ColumnHeaderStyle="{StaticResource RutinasEncabezadoTabla}"
+                              CellStyle="{StaticResource RutinasCeldaTabla}"
+                              RowStyle="{StaticResource RutinasFilaTabla}"
+                              SelectionChanged="GridRutinas_SelectionChanged"
+                              MouseDoubleClick="GridRutinas_MouseDoubleClick">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Rutina" Binding="{Binding Nombre}" Width="2*"/>
+                            <DataGridTextColumn Header="Ejercicios" Binding="{Binding Ejercicios.Count}" Width="100"/>
+                            <DataGridTextColumn Header="Socios asignados" Binding="{Binding Asignaciones.Count}" Width="140"/>
+                            <DataGridTextColumn Header="Creada" Binding="{Binding FechaCreacion, StringFormat={}{0:dd/MM/yyyy}}" Width="110"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
+                    CornerRadius="10" Padding="24">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="230"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Socios asignados" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+                            <TextBlock x:Name="TxtAsignacionesDescripcion" Text="Seleccioná una rutina para ver sus socios." FontSize="11" Foreground="#64748B" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Generar PDF" Style="{StaticResource RutinasBotonSecundario}"
+                                    Height="34" Padding="14,0" Margin="0,0,7,0" Click="BtnPdf_Click"/>
+                            <Button Content="Mostrar QR" Style="{StaticResource RutinasBotonSecundario}"
+                                    Height="34" Padding="14,0" Margin="0,0,7,0" Click="BtnQr_Click"/>
+                            <Button Content="Quitar asignación" Style="{StaticResource RutinasBotonPeligro}"
+                                    Height="34" Padding="14,0" Click="BtnQuitarAsignacion_Click"/>
+                        </StackPanel>
+                    </Grid>
+                    <DataGrid x:Name="GridAsignaciones" Grid.Row="1" AutoGenerateColumns="False"
+                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                              SelectionMode="Single" SelectionUnit="FullRow"
+                              HeadersVisibility="Column" RowHeight="42"
+                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#D2D2D2"
+                              BorderThickness="0" Background="White" AlternatingRowBackground="#F8FAFC"
+                              CanUserResizeRows="False" CanUserSortColumns="False" Focusable="False"
+                              ColumnHeaderStyle="{StaticResource RutinasEncabezadoTabla}"
+                              CellStyle="{StaticResource RutinasCeldaTabla}"
+                              RowStyle="{StaticResource RutinasFilaTabla}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Socio" Binding="{Binding Socio.NombreCompleto}" Width="2*"/>
+                            <DataGridTextColumn Header="DNI" Binding="{Binding Socio.Dni}" Width="130"/>
+                            <DataGridTextColumn Header="Asignada" Binding="{Binding FechaAsignacion, StringFormat={}{0:dd/MM/yyyy}}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

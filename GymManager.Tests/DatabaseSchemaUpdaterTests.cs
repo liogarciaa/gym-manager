@@ -46,6 +46,9 @@ public sealed class DatabaseSchemaUpdaterTests
         Assert.Equal(1L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Configuraciones\""));
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Asistencias\""));
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"LlaverosMaestros\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Rutinas\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"EjerciciosRutina\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"SociosRutinas\""));
     }
 
     [Fact]
@@ -61,10 +64,44 @@ public sealed class DatabaseSchemaUpdaterTests
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Pagos\""));
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Asistencias\""));
         Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"LlaverosMaestros\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"Rutinas\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"EjerciciosRutina\""));
+        Assert.Equal(0L, ScalarInt64(connection, "SELECT COUNT(*) FROM \"SociosRutinas\""));
 
         Execute(connection, "INSERT INTO \"LlaverosMaestros\" (\"Nombre\", \"CodigoAcceso\") VALUES ('Ana', 'UID-1');");
         Assert.Throws<SqliteException>(() => Execute(connection,
             "INSERT INTO \"LlaverosMaestros\" (\"Nombre\", \"CodigoAcceso\") VALUES ('Luis', 'UID-1');"));
+        Assert.Equal(1L, ScalarInt64(connection,
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'IX_SociosRutinas_SocioId_RutinaId';"));
+    }
+
+    [Fact]
+    public void RutinasGuardaEjerciciosYAsignacionesConIntegridadReferencial()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        DatabaseSchemaUpdater.EnsureCurrentSchema(connection);
+        Execute(connection, "PRAGMA foreign_keys=ON;");
+        Execute(connection, """
+            INSERT INTO "Socios" ("Id", "Nombre", "Apellido", "Dni", "Telefono", "FechaAlta", "EstaActivo", "FechaRegistro")
+            VALUES (10, 'Ana', 'Prueba', '12345', '', '2024-01-02', 1, '2024-01-02');
+            INSERT INTO "Rutinas" ("Id", "Nombre", "Descripcion", "FechaCreacion")
+            VALUES (20, 'Fuerza', '', '2024-01-02');
+            INSERT INTO "EjerciciosRutina" ("Id", "RutinaId", "Orden", "Nombre", "Series", "Repeticiones")
+            VALUES (30, 20, 1, 'Press', 3, '10');
+            INSERT INTO "SociosRutinas" ("Id", "SocioId", "RutinaId", "FechaAsignacion")
+            VALUES (40, 10, 20, '2024-01-02');
+            """);
+
+        Assert.Throws<SqliteException>(() => Execute(connection, """
+            INSERT INTO "SociosRutinas" ("SocioId", "RutinaId", "FechaAsignacion")
+            VALUES (10, 20, '2024-01-03');
+            """));
+
+        Execute(connection, """DELETE FROM "Rutinas" WHERE "Id" = 20;""");
+
+        Assert.Equal(0L, ScalarInt64(connection, """SELECT COUNT(*) FROM "EjerciciosRutina";"""));
+        Assert.Equal(0L, ScalarInt64(connection, """SELECT COUNT(*) FROM "SociosRutinas";"""));
     }
 
     private static void Execute(SqliteConnection connection, string sql)
