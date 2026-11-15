@@ -6,11 +6,14 @@ public static class RutinaQrService
 {
     public static byte[] CrearImagen(string texto)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(texto);
-        RutinaTextoService.ValidarTamanoQr(texto);
+        string textoQr = RutinaTextoService.PrepararParaQr(texto);
+        RutinaTextoService.ValidarTamanoQr(textoQr);
 
         using var generador = new QRCodeGenerator();
-        using QRCodeData datosQr = generador.CreateQrCode(texto, QRCodeGenerator.ECCLevel.L, forceUtf8: true);
-        return new PngByteQRCode(datosQr).GetGraphic(8);
+        using QRCodeData datosQr = generador.CreateQrCode(
+            textoQr,
+            QRCodeGenerator.ECCLevel.L,
+            forceUtf8: false);
+        return new PngByteQRCode(datosQr).GetGraphic(4);
     }
 }

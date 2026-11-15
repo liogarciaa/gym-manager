@@ -43,7 +43,7 @@ public sealed class RutinaTextoServiceTests
     }
 
     [Fact]
-    public void ValidaElLimiteDeBytesDelContenidoQrEnUtf8()
+    public void ValidaElLimiteDeBytesUtf8DelContenidoQr()
     {
         string textoValido = new('á', RutinaTextoService.MaximoBytesQr / 2);
         RutinaTextoService.ValidarTamanoQr(textoValido);
@@ -53,9 +53,26 @@ public sealed class RutinaTextoServiceTests
     }
 
     [Fact]
+    public void PreparaTextoQrSinAcentosNiCaracteresNoAscii()
+    {
+        string texto = RutinaTextoService.PrepararParaQr("Día de pierna, elevación y español 💪");
+
+        Assert.Equal("Dia de pierna, elevacion y espanol ?", texto);
+        Assert.All(texto, caracter => Assert.True(caracter <= 0x7F));
+    }
+
+    [Fact]
+    public void GeneraQrParaTextoConTildes()
+    {
+        byte[] imagen = RutinaQrService.CrearImagen("Rutina: Día de pierna, elevación y español");
+
+        Assert.Equal(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }, imagen[..8]);
+    }
+
+    [Fact]
     public void GeneraImagenQrPngParaTextoDeRutina()
     {
-        byte[] imagen = RutinaQrService.CrearImagen("RUTINA: Fuerza\n1. Press\n3 series x 10 repeticiones");
+        byte[] imagen = RutinaQrService.CrearImagen("RUTINA: Día de fuerza\n1. Press\n3 series x 10 repeticiones");
 
         Assert.True(imagen.Length > 8);
         Assert.Equal(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }, imagen[..8]);

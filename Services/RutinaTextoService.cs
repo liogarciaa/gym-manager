@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using GymManager.Models;
 
@@ -44,5 +45,24 @@ public static class RutinaTextoService
             throw new InvalidOperationException(
                 $"La rutina ocupa {cantidadBytes} bytes y supera el límite seguro del QR ({MaximoBytesQr} bytes). Reducí las notas o exportá el PDF.");
         }
+    }
+
+    public static string PrepararParaQr(string texto)
+    {
+        ArgumentNullException.ThrowIfNull(texto);
+
+        string descompuesto = texto.Normalize(NormalizationForm.FormD);
+        var resultado = new StringBuilder(descompuesto.Length);
+        foreach (Rune caracter in descompuesto.EnumerateRunes())
+        {
+            if (Rune.GetUnicodeCategory(caracter) == UnicodeCategory.NonSpacingMark)
+            {
+                continue;
+            }
+
+            resultado.Append(caracter.Value <= 0x7F ? (char)caracter.Value : '?');
+        }
+
+        return resultado.ToString().Normalize(NormalizationForm.FormC);
     }
 }

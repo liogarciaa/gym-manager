@@ -344,8 +344,9 @@ public partial class WorkoutRoutinesView : UserControl
         try
         {
             string texto = RutinaTextoService.Formatear(asignacion.Rutina);
-            byte[] imagenQr = RutinaQrService.CrearImagen(texto);
-            new RutinaQrWindow(texto, imagenQr) { Owner = Window.GetWindow(this) }.ShowDialog();
+            string textoQr = RutinaTextoService.PrepararParaQr(texto);
+            byte[] imagenQr = RutinaQrService.CrearImagen(textoQr);
+            new RutinaQrWindow(textoQr, imagenQr) { Owner = Window.GetWindow(this) }.ShowDialog();
         }
         catch (Exception ex)
         {
